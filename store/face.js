@@ -142,6 +142,7 @@ export const actions = {
   },
 
   draw({ commit, state }, { canvasDiv, canvasCtx, detection, options }) {
+
     let emotions = ''
     // filter only emontions above confidence treshold and exclude 'neutral'
     if (options.expressionsEnabled && detection.expressions) {
