@@ -1,21 +1,10 @@
 <template>
-  <v-layout row
-            align-center
-            justify-center
-            wrap
-  >
+  <v-layout row align-center justify-center wrap>
     <v-flex>
       <h1>Recognize</h1>
     </v-flex>
     <v-flex xs12>
-      <v-progress-circular
-        v-if="isProgressActive"
-        :rotate="360"
-        :size="100"
-        :width="15"
-        :value="progress"
-        color="teal"
-      >
+      <v-progress-circular v-if="isProgressActive" :rotate="360" :size="100" :width="15" :value="progress" color="teal">
         Loading...
       </v-progress-circular>
     </v-flex>
@@ -48,15 +37,8 @@
             </v-btn>
           </v-btn-toggle>
         </v-card-actions>
-        <v-slider v-model="fps"
-                  :max="60"
-                  :min="1"
-                  :step="1"
-                  label="Desired FPS"
-                  prepend-icon="local_movies"
-                  thumb-label="always"
-                  ticks
-        />
+        <v-slider v-model="fps" :max="60" :min="1" :step="1" label="Desired FPS" prepend-icon="local_movies"
+          thumb-label="always" ticks />
         <p>
           <v-chip label color="orange" text-color="white">
             <v-icon left>
@@ -72,26 +54,17 @@
       </v-card>
     </v-flex>
     <v-flex xs12 md6>
-      <video
-        id="live-video"
-        width="320"
-        height="247"
-        autoplay
-      />
+      <video id="live-video" width="320" height="247" autoplay />
     </v-flex>
     <v-flex xs12 md6>
-      <canvas
-        id="live-canvas"
-        width="320"
-        height="247"
-      />
+      <canvas id="live-canvas" width="320" height="247" />
     </v-flex>
   </v-layout>
 </template>
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       interval: null,
       fps: 15,
@@ -107,13 +80,13 @@ export default {
   },
 
   computed: {
-    models () {
+    models() {
       return this.$store.state.model.list
     }
   },
 
   watch: {
-    fps (newFps) {
+    fps(newFps) {
       const videoDiv = document.getElementById('live-video')
       const canvasDiv = document.getElementById('live-canvas')
       const canvasCtx = canvasDiv.getContext('2d')
@@ -121,17 +94,17 @@ export default {
     }
   },
 
-  async beforeMount () {
+  async beforeMount() {
     const self = this
     await self.$store.dispatch('face/getAll')
       .then(() => self.$store.dispatch('face/getFaceMatcher'))
   },
 
-  async mounted () {
+  async mounted() {
     await this.recognize()
   },
 
-  beforeDestroy () {
+  beforeDestroy() {
     if (this.interval) {
       clearInterval(this.interval)
     }
@@ -139,7 +112,7 @@ export default {
   },
 
   methods: {
-    start (videoDiv, canvasDiv, canvasCtx, fps) {
+    start(videoDiv, canvasDiv, canvasCtx, fps) {
       const self = this
       if (self.interval) {
         clearInterval(self.interval)
@@ -154,6 +127,7 @@ export default {
           expressionsEnabled: self.withOptions.find(o => o === 3) === 3
         }
         const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options })
+        const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
         if (detections.length) {
           if (self.isProgressActive) {
             self.increaseProgress()
@@ -178,7 +152,7 @@ export default {
         self.realFps = (1000 / (t1 - t0)).toFixed(2)
       }, 1000 / fps)
     },
-    async recognize () {
+    async recognize() {
       const self = this
       self.increaseProgress()
       await self.$store.dispatch('camera/startCamera')
@@ -193,7 +167,7 @@ export default {
         })
     },
 
-    increaseProgress () {
+    increaseProgress() {
       const self = this
       self.progress = (100 / self.step) * ++self.counter
     }

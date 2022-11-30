@@ -18,61 +18,46 @@
       </v-btn>
       <v-toolbar-title v-html="title" />
     </v-app-bar>
-    <v-content>
+    <v-main>
       <v-container fluid>
-        <v-progress-circular
-          v-if="loading"
-          :size="200"
-          :width="20"
-          color="red"
-          indeterminate
-        >
+        <v-progress-circular v-if="loading" :size="200" :width="20" color="red" indeterminate>
           Loading 7MB models.
           <br>
           Please be patient...
         </v-progress-circular>
         <nuxt />
       </v-container>
-    </v-content>
-    <v-footer :fixed="fixed" app>
-      <v-flex class="text-xs-right">
-        <a href="http://gjovanov.com/" style="color: white">
-          <span>gjovanov - &copy; 2019</span>
-        </a>
-        &nbsp;
-      </v-flex>
-    </v-footer>
+    </v-main>
   </v-app>
 </template>
 
 <script>
 export default {
-  data () {
+  data() {
     return {
       clipped: false,
       drawer: true,
       fixed: false,
       items: [
-        { icon: 'home', title: 'Welcome', to: '/' },
-        { icon: 'people', title: 'Users', to: '/users' },
-        { icon: 'wallpaper', title: 'Train', to: '/train' },
-        { icon: 'camera', title: 'Recognize', to: '/recognize' }
+        { icon: 'home', title: '欢迎', to: '/' },
+        { icon: 'people', title: '人脸数据库', to: '/users' },
+        { icon: 'wallpaper', title: '训练', to: '/train' },
+        { icon: 'camera', title: '检测', to: '/recognize' }
       ],
       miniVariant: true,
       right: true,
       rightDrawer: false,
-      title: 'face&reg; - Realtime Face Recognition'
+      title: '口罩检测与人脸识别系统'
     }
   },
   computed: {
-    loading () {
+    loading() {
       return this.$store.state.face.loading
     }
   },
-  created () {
-    this.$vuetify.theme.dark = true
+  created() {
   },
-  async mounted () {
+  async mounted() {
     const self = this
     await self.$store.dispatch('face/load')
   }

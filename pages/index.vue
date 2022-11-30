@@ -1,58 +1,44 @@
 <template>
-  <v-layout
-    column
-    justify-center
-    align-center
-  >
-    <v-flex
-      xs12
-      sm8
-      md6
-    >
+  <v-layout column justify-center align-center>
+    <v-flex xs12 sm8 md6>
       <v-card>
         <v-card-title class="headline">
-          Realtime Face Recognition using TensorFlowJS and face-api-js
+          基于TensorFlowJS和face-api-js 的实时人脸识别--使用流程
         </v-card-title>
         <v-responsive>
           <v-list two-line subheader>
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title>Register</v-list-item-title>
-                <v-list-item-subtitle>Register your name</v-list-item-subtitle>
+                <v-list-item-title>注册</v-list-item-title>
+                <v-list-item-subtitle>注册名字</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-divider />
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title>Take Photos</v-list-item-title>
-                <v-list-item-subtitle>Upload photos either by the File Upload or using your Camera</v-list-item-subtitle>
+                <v-list-item-title>图像获取</v-list-item-title>
+                <v-list-item-subtitle>上传图片或拍照获取</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-divider />
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title>Train</v-list-item-title>
-                <v-list-item-subtitle>Train the model for all users in the catalog</v-list-item-subtitle>
+                <v-list-item-title>训练</v-list-item-title>
+                <v-list-item-subtitle>为注册用户训练模型</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-divider />
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title>Recognize</v-list-item-title>
-                <v-list-item-subtitle>Recognize your face using browser camera</v-list-item-subtitle>
+                <v-list-item-title>识别</v-list-item-title>
+                <v-list-item-subtitle>使用摄像头进行识别</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
           </v-list>
         </v-responsive>
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            color="primary"
-            nuxt
-            to="/users"
-          >
-            Register
-          </v-btn>
+          <v-btn color="primary" nuxt to="/users">注册</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
