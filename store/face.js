@@ -1,15 +1,16 @@
-import * as faceapi from 'face-api.js'
+import * as faceapi from '@vladmandic/face-api';
+import metadataJSON from "../data/metadata.json";
+import { tf } from '@vladmandic/face-api';
+import { CustomMobileNet } from '@teachablemachine/image';
 
 export const state = () => ({
   faces: [],
+  models: undefined,
   loading: false,
   loaded: false,
   faceMatcher: null,
   URL: 'https://teachablemachine.withgoogle.com/models/hBKYa4zJe/',
-  modelURL: URL + 'model.json',
-  metadataURL: URL + 'metadata.json',
   useTiny: false,
-
   detections: {
     scoreThreshold: 0.5,
     inputSize: 320,
@@ -47,9 +48,9 @@ export const mutations = {
 
   setFaceMatcher(state, matcher) {
     state.faceMatcher = matcher
-  }
-}
+  },
 
+}
 export const actions = {
   load({ commit, state }) {
     if (!state.loading && !state.loaded) {
@@ -68,6 +69,11 @@ export const actions = {
   async getAll({ commit, state }) {
     const data = await this.$axios.$get('/api/face/getAll')
     commit('setFaces', data)
+  },
+  async getModel({ commit, state }) {
+    //从后端获取模型文件，并赋值给state
+    // const data = await this.$axios.$get('/api/face/getModel')
+    commit('setModels', models)
   },
   async save({ commit }, faces) {
     const { data } = await this.$axios.$post('/api/face/save', { faces })
@@ -116,23 +122,25 @@ export const actions = {
     detections = await detections
     return detections
   },
-  async getMaskDetection({ commit, state }, { canvas, options }) {
+  async getMaskDetections({ commit, state }, { canvas }) {
 
-    // let model = await tmImage.load(modelURL, metadataURL)
-    // maxPredictions = model.getTotalClasses();
-    // let detections = model.predict(canvas)
-    if (options && (options.landmarksEnabled || options.descriptorsEnabled)) {
-      detections = detections.withFaceLandmarks(state.useTiny)
-    }
-    if (options && options.expressionsEnabled) {
-      detections = detections.withFaceExpressions()
-    }
-    if (options && options.descriptorsEnabled) {
-      detections = detections.withFaceDescriptors()
-    }
-    detections = await detections
-    return detections
+    // let model = await tmImage.loadFromFiles(model1, weights, metadata)
+    const customModel = await tf.loadLayersModel('../data/model.json')
+    const model = new CustomMobileNet(customModel, metadataJSON);
+    let maskDetections = model.predict(canvas)
+    // if (options && (options.landmarksEnabled || options.descriptorsEnabled)) {
+    //   detections = detections.withFaceLandmarks(state.useTiny)
+    // }
+    // if (options && options.expressionsEnabled) {
+    //   detections = detections.withFaceExpressions()
+    // }
+    // if (options && options.descriptorsEnabled) {
+    //   detections = detections.withFaceDescriptors()
+    // }
+    // maskDetections = await maskDetections
+    return maskDetections
   },
+
   async recognize({ commit, state }, { descriptor, options }) {
     if (options.descriptorsEnabled) {
       const bestMatch = await state.faceMatcher.findBestMatch(descriptor)
@@ -140,11 +148,21 @@ export const actions = {
     }
     return null
   },
+  // [
+  //   {
+  //     "className": "Mask",
+  //     "probability": 0.014806561172008514
+  //   },
+  //   {
+  //     "className": "No Mask",
+  //     "probability": 0.9851934313774109
+  //   }
+  // ],
 
   draw({ commit, state }, { canvasDiv, canvasCtx, detection, options }) {
 
     let emotions = ''
-    // filter only emontions above confidence treshold and exclude 'neutral'
+    // filter only emontions above confidence threshold and exclude 'neutral'
     if (options.expressionsEnabled && detection.expressions) {
       for (const expr in detection.expressions) {
         if (detection.expressions[expr] > state.expressions.minConfidence && expr !== 'neutral') {
@@ -159,8 +177,18 @@ export const actions = {
     if (options.descriptorsEnabled && detection.recognition) {
       name = detection.recognition.toString(state.descriptors.withDistance)
     }
+    let maskon = ''
+    if (detection.maskdetect) {
+      if (detection.maskdetect[0].probability > detection.maskdetect[1].probability) {
 
-    const text = `${name}${emotions ? (name ? ' is ' : '') : ''}${emotions}`
+        maskon = '已佩戴口罩'
+      } else {
+
+        maskon = '未佩戴口罩'
+      }
+    }
+
+    const text = `${name}${emotions ? (name ? ' is ' : '') : ''}${emotions}${maskon}`
     const box = detection.box || detection.detection.box
     if (options.detectionsEnabled && box) {
       // draw box

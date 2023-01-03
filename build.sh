@@ -1,5 +1,5 @@
 set -ex
 # SET THE FOLLOWING VARIABLES
-USERNAME=gjovanov
+USERNAME=rin
 IMAGE=facer
 docker build -t $USERNAME/$IMAGE:latest .

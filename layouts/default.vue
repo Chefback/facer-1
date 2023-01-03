@@ -41,8 +41,8 @@ export default {
       items: [
         { icon: 'home', title: '欢迎', to: '/' },
         { icon: 'people', title: '人脸数据库', to: '/users' },
-        { icon: 'wallpaper', title: '训练', to: '/train' },
-        { icon: 'camera', title: '检测', to: '/recognize' }
+        { icon: 'wallpaper', title: '本地图片检测', to: '/train' },
+        { icon: 'camera', title: '摄像头检测', to: '/recognize' }
       ],
       miniVariant: true,
       right: true,

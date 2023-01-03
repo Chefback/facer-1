@@ -23,14 +23,21 @@
             <v-divider />
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title>训练</v-list-item-title>
-                <v-list-item-subtitle>为注册用户训练模型</v-list-item-subtitle>
+                <v-list-item-title>模型训练</v-list-item-title>
+                <v-list-item-subtitle>根据获取的图片训练模型</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>
             <v-divider />
             <v-list-item>
               <v-list-item-content>
-                <v-list-item-title>识别</v-list-item-title>
+                <v-list-item-title>上传检测</v-list-item-title>
+                <v-list-item-subtitle>检测用户上传图片</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
+            <v-list-item>
+              <v-list-item-content>
+                <v-list-item-title>摄像头检测</v-list-item-title>
                 <v-list-item-subtitle>使用摄像头进行识别</v-list-item-subtitle>
               </v-list-item-content>
             </v-list-item>

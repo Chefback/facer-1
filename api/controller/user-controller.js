@@ -23,10 +23,10 @@ const dataFolder = join(rootFolder, 'data')
 const usersFolder = join(dataFolder, 'users')
 
 const storage = multer.diskStorage({
-  destination: function(req, file, callback) {
+  destination: function (req, file, callback) {
     callback(null, usersFolder)
   },
-  filename: function(req, file, callback) {
+  filename: function (req, file, callback) {
     let fileComponents = file.originalname.split(".")
     let fileExtension = fileComponents[fileComponents.length - 1]
     let filename = `${file.originalname}_${Date.now()}.${fileExtension}`
@@ -92,7 +92,7 @@ userRoutes.post("/register", (req, res) => {
   }
 })
 
-userRoutes.post("/delete", async(req, res) => {
+userRoutes.post("/delete", async (req, res) => {
   res.header("Content-Type", "application/json")
   if (req.body.name) {
     const oldFolder = join(usersFolder, req.body.name)
@@ -116,7 +116,7 @@ userRoutes.post("/delete", async(req, res) => {
   }
 })
 
-userRoutes.post("/upload", async(req, res) => {
+userRoutes.post("/upload", async (req, res) => {
   res.header("Content-Type", "application/json")
   const upload = multer({
     storage: storage
@@ -129,7 +129,7 @@ userRoutes.post("/upload", async(req, res) => {
     })
 })
 
-userRoutes.post("/uploadBase64", async(req, res) => {
+userRoutes.post("/uploadBase64", async (req, res) => {
   res.header("Content-Type", "application/json")
   await uploadBase64(req.body.upload)
     .then(result => res.send(result))
@@ -139,7 +139,7 @@ userRoutes.post("/uploadBase64", async(req, res) => {
     })
 })
 
-userRoutes.post("/deletePhoto", async(req, res) => {
+userRoutes.post("/deletePhoto", async (req, res) => {
   res.header("Content-Type", "application/json")
   if (req.body.upload.user && req.body.upload.file) {
     const file = join(usersFolder, req.body.upload.user, req.body.upload.file)
@@ -161,7 +161,7 @@ userRoutes.post("/deletePhoto", async(req, res) => {
 })
 
 async function deleteFolder(name) {
-  return new Promise(async(resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     rimraf(name, (err) => {
       if (err) {
         reject(new Error(err))
@@ -172,8 +172,8 @@ async function deleteFolder(name) {
 }
 
 async function uploadFile(upload, req, res) {
-  return new Promise(async(resolve, reject) => {
-    await upload(req, res, async(err) => {
+  return new Promise(async (resolve, reject) => {
+    await upload(req, res, async (err) => {
       if (err) {
         reject(new Error('Error uploading file'))
         return
@@ -181,6 +181,7 @@ async function uploadFile(upload, req, res) {
 
       const result = [];
       await Promise.all(req.files.map(async file => {
+        //读取旧目录的图片并进行修改，修改完后保存到新目录，并删除旧文件
         try {
           const oldPath = join(usersFolder, file.filename)
           const newPath = join(usersFolder, req.body.user, file.filename)
@@ -211,7 +212,7 @@ async function uploadBase64(upload) {
   const fileName = `${upload.user}_${Date.now()}.jpg`
   const imgPath = join(usersFolder, upload.user, fileName)
   const content = upload.content.split(',')[1]
-  return new Promise(async(resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
     writeFile(imgPath, content, 'base64', (err) => {
       if (err) {
         reject(new Error(err))

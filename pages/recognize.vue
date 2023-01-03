@@ -66,6 +66,7 @@
 export default {
   data() {
     return {
+      url: 'https://teachablemachine.withgoogle.com/models/hBKYa4zJe/',
       interval: null,
       fps: 15,
       realFps: 0,
@@ -78,7 +79,6 @@ export default {
       withOptions: [0, 1, 2, 3]
     }
   },
-
   computed: {
     models() {
       return this.$store.state.model.list
@@ -98,6 +98,8 @@ export default {
     const self = this
     await self.$store.dispatch('face/getAll')
       .then(() => self.$store.dispatch('face/getFaceMatcher'))
+
+    //todo
   },
 
   async mounted() {
@@ -128,6 +130,9 @@ export default {
         }
         const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options })
         const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
+        // console.log(maskDetections);
+        // console.log(detections);
+
         if (detections.length) {
           if (self.isProgressActive) {
             self.increaseProgress()
@@ -137,7 +142,9 @@ export default {
             detection.recognition = await self.$store.dispatch('face/recognize', {
               descriptor: detection.descriptor,
               options
-            })
+            }),
+              detection.maskdetect = await maskDetections
+            // console.log(detection, '检测结果')
             self.$store.dispatch('face/draw',
               {
                 canvasDiv,

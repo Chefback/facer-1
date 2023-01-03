@@ -64,6 +64,7 @@ const config = {
    */
   plugins: [
     // '@/plugins/vuetify'
+    // { src: '~/plugins/vuex-persist.js', mode: 'client' }
   ],
 
   /*
@@ -88,7 +89,7 @@ const config = {
     /*
      ** You can extend webpack config here
      */
-    extend (config, ctx) {
+    extend(config, ctx) {
       if (!config.node) {
         config.node = {}
       }
