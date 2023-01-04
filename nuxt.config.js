@@ -64,7 +64,6 @@ const config = {
    */
   plugins: [
     // '@/plugins/vuetify'
-    // { src: '~/plugins/vuex-persist.js', mode: 'client' }
   ],
 
   /*
