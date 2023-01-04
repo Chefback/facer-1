@@ -1,63 +1,13 @@
 <template>
   <v-layout row align-center justify-center wrap>
     <v-flex>
+      <v-file-input accept="image/*" label="File input"></v-file-input>
+      <v-img lazy-src="https://picsum.photos/id/11/10/6" max-height="150" max-width="250"
+        src="https://picsum.photos/id/11/500/300"></v-img>
+      <v-btn>检测</v-btn>
+    </v-flex>
+    <v-flex>
       <h1>Recognize</h1>
-    </v-flex>
-    <v-flex xs12>
-      <v-progress-circular v-if="isProgressActive" :rotate="360" :size="100" :width="15" :value="progress" color="teal">
-        Loading...
-      </v-progress-circular>
-    </v-flex>
-    <v-flex v-if="!isProgressActive" xs12>
-      <v-card>
-        <p>
-          <span>
-            Make some facial expressions that demonstrate emotions like
-            <v-icon>sentiment_satisfied_alt</v-icon>
-            <v-icon>sentiment_very_dissatisfied</v-icon>
-          </span>
-        </p>
-        <v-card-actions class="justify-center">
-          <v-btn-toggle v-model="withOptions" multiple>
-            <v-btn>
-              <v-icon>check_box_outline_blank</v-icon>
-              <span>Detection</span>
-            </v-btn>
-            <v-btn>
-              <v-icon>face</v-icon>
-              <span>Landmarks</span>
-            </v-btn>
-            <v-btn>
-              <v-icon>how_to_reg</v-icon>
-              <span>Recognition</span>
-            </v-btn>
-            <v-btn>
-              <v-icon>insert_emoticon</v-icon>
-              <span>Emotion</span>
-            </v-btn>
-          </v-btn-toggle>
-        </v-card-actions>
-        <v-slider v-model="fps" :max="60" :min="1" :step="1" label="Desired FPS" prepend-icon="local_movies"
-          thumb-label="always" ticks />
-        <p>
-          <v-chip label color="orange" text-color="white">
-            <v-icon left>
-              local_movies
-            </v-icon> Real FPS: {{ realFps }}
-          </v-chip>
-          <v-chip label color="orange" text-color="white">
-            <v-icon left>
-              timer
-            </v-icon> Duration: {{ duration }} ms
-          </v-chip>
-        </p>
-      </v-card>
-    </v-flex>
-    <v-flex xs12 md6>
-      <video id="live-video" width="320" height="247" autoplay />
-    </v-flex>
-    <v-flex xs12 md6>
-      <canvas id="live-canvas" width="320" height="247" />
     </v-flex>
   </v-layout>
 </template>

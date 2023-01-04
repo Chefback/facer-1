@@ -60,7 +60,77 @@
       </v-list>
     </v-flex>
     <v-flex>
-      <v-data-table :headers="headers" :items="desserts" :items-per-page="5" class="elevation-1"></v-data-table>
+      <v-data-table :headers="headers" :items="desserts" sort-by="calories" class="elevation-1">
+        <template v-slot:top>
+          <v-toolbar flat>
+            <v-toolbar-title>人脸信息管理</v-toolbar-title>
+            <v-divider class="mx-4" inset vertical></v-divider>
+            <v-spacer></v-spacer>
+            <v-dialog v-model="dialog" max-width="500px">
+              <template v-slot:activator="{ on, attrs }">
+                <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">添加新用户</v-btn>
+              </template>
+              <v-card>
+                <v-card-title>
+                  <span class="text-h5">{{ formTitle }}</span>
+                </v-card-title>
+
+                <v-card-text>
+                  <v-container>
+                    <v-row>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field v-model="editedItem.name" label="Dessert name"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field v-model="editedItem.calories" label="Calories"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field v-model="editedItem.fat" label="Fat (g)"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field v-model="editedItem.carbs" label="Carbs (g)"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field v-model="editedItem.protein" label="Protein (g)"></v-text-field>
+                      </v-col>
+                    </v-row>
+                  </v-container>
+                </v-card-text>
+
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="blue darken-1" text @click="close">取消</v-btn>
+                  <v-btn color="blue darken-1" text @click="save">保存</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+            <v-dialog v-model="dialogDelete" max-width="500px">
+              <v-card>
+                <v-card-title class="text-h5">是否删除此用户</v-card-title>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="blue darken-1" text @click="closeDelete">取消</v-btn>
+                  <v-btn color="blue darken-1" text @click="deleteItemConfirm">确认</v-btn>
+                  <v-spacer></v-spacer>
+                </v-card-actions>
+              </v-card>
+            </v-dialog>
+          </v-toolbar>
+        </template>
+        <template v-slot:item.actions="{ item }">
+          <v-icon small class="mr-2" @click="editItem(item)">
+            mdi-pencil
+          </v-icon>
+          <v-icon small @click="deleteItem(item)">
+            mdi-delete
+          </v-icon>
+        </template>
+        <template v-slot:no-data>
+          <v-btn color="primary" @click="initialize">
+            Reset
+          </v-btn>
+        </template>
+      </v-data-table>
     </v-flex>
   </v-layout>
 </template>
@@ -70,6 +140,7 @@ export default {
   data() {
     return {
       dialog: false,
+      dialogDelete: false,
       selectedUser: null,
       valid: true,
       name: null,
@@ -79,25 +150,68 @@ export default {
       ],
       headers: [
         {
-          text: 'Dessert (100g serving)',
+          text: '用户ID',
           align: 'start',
           sortable: false,
           value: 'name',
         },
-        { text: 'Calories', value: 'calories' },
-        { text: 'Fat (g)', value: 'fat' },
-        { text: 'Carbs (g)', value: 'carbs' },
-        { text: 'Protein (g)', value: 'protein' },
-        { text: 'Iron (%)', value: 'iron' },
+        { text: '用户名', value: 'calories' },
+        { text: '用户性别', value: 'fat' },
+        { text: '用户电话号码', value: 'carbs' },
+        { text: '人脸信息录入', value: 'protein' },
+        { text: '创建时间', value: 'iron' },
+        { text: 'Actions', value: 'actions', sortable: false },
+
       ],
-      desserts: [
+      desserts: [],
+      editedIndex: -1,
+      editedItem: {
+        name: '',
+        calories: 0,
+        fat: 0,
+        carbs: 0,
+        protein: 0,
+      },
+      defaultItem: {
+        name: '',
+        calories: 0,
+        fat: 0,
+        carbs: 0,
+        protein: 0,
+      },
+    }
+  },
+
+  computed: {
+    users() {
+      return this.$store.state.user.list
+    }, formTitle() {
+      return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+    },
+  }, watch: {
+    dialog(val) {
+      val || this.close()
+    },
+    dialogDelete(val) {
+      val || this.closeDelete()
+    },
+  },
+  created() {
+    this.initialize()
+  },
+  fetch({ store }) {
+    return store.dispatch('user/getAll')
+  },
+
+  methods: {
+    initialize() {
+      this.desserts = [
         {
           name: 'Frozen Yogurt',
           calories: 159,
           fat: 6.0,
           carbs: 24,
           protein: 4.0,
-          iron: '1%',
         },
         {
           name: 'Ice cream sandwich',
@@ -105,7 +219,6 @@ export default {
           fat: 9.0,
           carbs: 37,
           protein: 4.3,
-          iron: '1%',
         },
         {
           name: 'Eclair',
@@ -113,7 +226,6 @@ export default {
           fat: 16.0,
           carbs: 23,
           protein: 6.0,
-          iron: '7%',
         },
         {
           name: 'Cupcake',
@@ -121,7 +233,6 @@ export default {
           fat: 3.7,
           carbs: 67,
           protein: 4.3,
-          iron: '8%',
         },
         {
           name: 'Gingerbread',
@@ -129,7 +240,6 @@ export default {
           fat: 16.0,
           carbs: 49,
           protein: 3.9,
-          iron: '16%',
         },
         {
           name: 'Jelly bean',
@@ -137,7 +247,6 @@ export default {
           fat: 0.0,
           carbs: 94,
           protein: 0.0,
-          iron: '0%',
         },
         {
           name: 'Lollipop',
@@ -145,7 +254,6 @@ export default {
           fat: 0.2,
           carbs: 98,
           protein: 0,
-          iron: '2%',
         },
         {
           name: 'Honeycomb',
@@ -153,7 +261,6 @@ export default {
           fat: 3.2,
           carbs: 87,
           protein: 6.5,
-          iron: '45%',
         },
         {
           name: 'Donut',
@@ -161,7 +268,6 @@ export default {
           fat: 25.0,
           carbs: 51,
           protein: 4.9,
-          iron: '22%',
         },
         {
           name: 'KitKat',
@@ -169,22 +275,45 @@ export default {
           fat: 26.0,
           carbs: 65,
           protein: 7,
-          iron: '6%',
         },
-      ],
-    }
-  },
-
-  computed: {
-    users() {
-      return this.$store.state.user.list
-    }
-  },
-  fetch({ store }) {
-    return store.dispatch('user/getAll')
-  },
-
-  methods: {
+      ]
+    },
+    editItem(item) {
+      this.editedIndex = this.desserts.indexOf(item)
+      this.editedItem = Object.assign({}, item)
+      this.dialog = true
+    },
+    deleteItem(item) {
+      this.editedIndex = this.desserts.indexOf(item)
+      this.editedItem = Object.assign({}, item)
+      this.dialogDelete = true
+    },
+    deleteItemConfirm() {
+      this.desserts.splice(this.editedIndex, 1)
+      this.closeDelete()
+    },
+    close() {
+      this.dialog = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+    closeDelete() {
+      this.dialogDelete = false
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem)
+        this.editedIndex = -1
+      })
+    },
+    save() {
+      if (this.editedIndex > -1) {
+        Object.assign(this.desserts[this.editedIndex], this.editedItem)
+      } else {
+        this.desserts.push(this.editedItem)
+      }
+      this.close()
+    },
     register() {
       const self = this
       if (this.$refs.form.validate()) {

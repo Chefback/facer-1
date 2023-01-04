@@ -15,8 +15,6 @@ var sequelize = new Sequelize(
             timestamps: true,
             // delete_time
             paranoid: true,
-            createdAt: 'created_at',
-            updatedAt: 'updated_at',
             deletedAt: 'deleted_at',
             // 把驼峰命名转换为下划线
             underscored: true,
@@ -48,17 +46,57 @@ var sequelize = new Sequelize(
     });
 
 let User = sequelize.define('user', {
+    userid: {
+        type: Sequelize.BIGINT,
+        primaryKey: true,
+        defaultValue: BaseModel.uid()
+    },
+    name: {
+        type: Sequelize.STRING(20),
+        allowNull: true
+    },
+    sex: {
+        type: Sequelize.STRING(50),
+        allowNull: false
+    },
+    phone: {
+        type: Sequelize.STRING(20),
+        allowNull: false
+    },
+    description: {
+        type: Sequelize.STRING(20),
+        allowNull: true
+    },
+}, {
+    indexes: [
+        {
+            name: 'index_user_1',
+            fields: ['mail'],
+            unique: true
+        },
+        {
+            name: 'index_user_2',
+            fields: ['mail', 'passwd']
+        }
+    ],
+    getterMethods: {
+        to_dict: function () {
+            return {
+                id: this.id.toString(),
+                name: this.name
+            }
+        }
+    }
+});
+
+let Admin = sequelize.define('admin', {
     id: {
         type: Sequelize.BIGINT,
         primaryKey: true,
         defaultValue: BaseModel.uid()
     },
-    mail: {
+    createdAt: {
         type: Sequelize.STRING(50),
-        allowNull: false
-    },
-    passwd: {
-        type: Sequelize.STRING(20),
         allowNull: false
     },
     name: {
@@ -87,24 +125,16 @@ let User = sequelize.define('user', {
     }
 });
 
-let admin = sequelize.define('user', {
+let Recognition = sequelize.define('recognition', {
     id: {
         type: Sequelize.BIGINT,
         primaryKey: true,
         defaultValue: BaseModel.uid()
     },
-    mail: {
-        type: Sequelize.STRING(50),
-        allowNull: false
-    },
-    passwd: {
+    recognition: {
         type: Sequelize.STRING(20),
         allowNull: false
     },
-    name: {
-        type: Sequelize.STRING(20),
-        allowNull: true
-    }
 }, {
     indexes: [
         {
@@ -126,44 +156,4 @@ let admin = sequelize.define('user', {
         }
     }
 });
-
-let recognition = sequelize.define('user', {
-    id: {
-        type: Sequelize.BIGINT,
-        primaryKey: true,
-        defaultValue: BaseModel.uid()
-    },
-    mail: {
-        type: Sequelize.STRING(50),
-        allowNull: false
-    },
-    passwd: {
-        type: Sequelize.STRING(20),
-        allowNull: false
-    },
-    name: {
-        type: Sequelize.STRING(20),
-        allowNull: true
-    }
-}, {
-    indexes: [
-        {
-            name: 'index_user_1',
-            fields: ['mail'],
-            unique: true
-        },
-        {
-            name: 'index_user_2',
-            fields: ['mail', 'passwd']
-        }
-    ],
-    getterMethods: {
-        to_dict: function () {
-            return {
-                id: this.id.toString(),
-                name: this.name
-            }
-        }
-    }
-});
-module.exports = { User, admin, recognition };
+module.exports = { User, Admin, Recognition };

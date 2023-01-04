@@ -16,12 +16,18 @@ const sharp = require('sharp')
 sharp.cache(false)
 const multer = require("multer")
 const userRoutes = express.Router()
+//导入数据库
+const db = require("../models");
+const User = db.User;
+const Admin = db.Admin;
+const Recognition = db.Recognition;
+const Op = db.Sequelize.Op;
 
-//folders
+//文件夹路径
 const rootFolder = join(__dirname, '../../')
 const dataFolder = join(rootFolder, 'data')
 const usersFolder = join(dataFolder, 'users')
-
+//设置存储
 const storage = multer.diskStorage({
   destination: function (req, file, callback) {
     callback(null, usersFolder)
@@ -33,7 +39,7 @@ const storage = multer.diskStorage({
     callback(null, filename)
   }
 })
-
+//获取用户图片函数
 const getUserPhotos = (user) => {
   const userFolder = join(usersFolder, user)
   const isFile = source => !lstatSync(source).isDirectory()
@@ -48,6 +54,7 @@ const getUserPhotos = (user) => {
   return result;
 }
 
+//获取全部
 userRoutes.get("/getAll", (req, res) => {
   res.header("Content-Type", "application/json")
   const isDirectory = source => lstatSync(source).isDirectory()
@@ -65,12 +72,14 @@ userRoutes.get("/getAll", (req, res) => {
   res.send(result);
 })
 
+//获取图片
 userRoutes.get("/get-photos", (req, res) => {
   res.header("Content-Type", "application/json")
   const result = getUserPhotos(req.query.user)
   res.send(result);
 })
 
+//用户注册
 userRoutes.post("/register", (req, res) => {
   res.header("Content-Type", "application/json")
   if (req.body.name) {
@@ -92,6 +101,29 @@ userRoutes.post("/register", (req, res) => {
   }
 })
 
+//管理员登陆
+userRoutes.post("/login", (req, res) => {
+  res.header("Content-Type", "application/json")
+  if (req.body.name) {
+    const newFolder = join(usersFolder, req.body.name)
+    if (!existsSync(newFolder)) {
+      mkdirSync(newFolder)
+      res.send('ok')
+    } else {
+      res.sendStatus(500)
+        .send({
+          error: 'User already exists'
+        })
+    }
+  } else {
+    res.sendStatus(500)
+      .send({
+        error: 'User name is mandatory.'
+      })
+  }
+})
+
+//删除用户
 userRoutes.post("/delete", async (req, res) => {
   res.header("Content-Type", "application/json")
   if (req.body.name) {
@@ -116,6 +148,7 @@ userRoutes.post("/delete", async (req, res) => {
   }
 })
 
+//上传图片
 userRoutes.post("/upload", async (req, res) => {
   res.header("Content-Type", "application/json")
   const upload = multer({
@@ -129,6 +162,7 @@ userRoutes.post("/upload", async (req, res) => {
     })
 })
 
+//上传图片base64
 userRoutes.post("/uploadBase64", async (req, res) => {
   res.header("Content-Type", "application/json")
   await uploadBase64(req.body.upload)
@@ -139,6 +173,7 @@ userRoutes.post("/uploadBase64", async (req, res) => {
     })
 })
 
+//删除图片
 userRoutes.post("/deletePhoto", async (req, res) => {
   res.header("Content-Type", "application/json")
   if (req.body.upload.user && req.body.upload.file) {
@@ -160,6 +195,7 @@ userRoutes.post("/deletePhoto", async (req, res) => {
   }
 })
 
+//删除文件夹
 async function deleteFolder(name) {
   return new Promise(async (resolve, reject) => {
     rimraf(name, (err) => {
@@ -171,6 +207,7 @@ async function deleteFolder(name) {
   })
 }
 
+//上传文件函数
 async function uploadFile(upload, req, res) {
   return new Promise(async (resolve, reject) => {
     await upload(req, res, async (err) => {
@@ -208,6 +245,7 @@ async function uploadFile(upload, req, res) {
   })
 }
 
+//上传base64
 async function uploadBase64(upload) {
   const fileName = `${upload.user}_${Date.now()}.jpg`
   const imgPath = join(usersFolder, upload.user, fileName)

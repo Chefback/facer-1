@@ -10,7 +10,7 @@ app.use(bodyParser.urlencoded({
   limit: "50mb"
 }))
 app.use(cookieParser())
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*")
   res.header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, DELETE")
   res.header("Access-Control-Allow-Headers", "origin, content-type, Authorization")
@@ -25,6 +25,14 @@ app.use(function(req, res, next) {
 // Data route
 const dataFolder = join(__dirname, '..', 'data')
 app.use("/data", express.static(dataFolder))
+
+const db = require("./models");
+db.sequelize.sync().then(() => {
+  console.log("Synced db.");
+})
+  .catch((err) => {
+    console.log("Failed to sync db: " + err.message);
+  });
 
 // API routes
 const apiRoutes = express.Router()

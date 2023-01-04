@@ -10,6 +10,7 @@ const rootFolder = join(__dirname, '../../')
 const dataFolder = join(rootFolder, 'data')
 const facesFileName = 'faces.json'
 const modelFileName = ['model.json', 'metadata.json', 'model.weights.bin']
+
 //传输脸部特征文件
 modelRoutes.get("/getAll", (req, res) => {
   res.header("Content-Type", "application/json")
@@ -20,8 +21,8 @@ modelRoutes.get("/getAll", (req, res) => {
   res.send(result);
 })
 
-//传输本地模型文件
 
+//保存脸部特征文件
 modelRoutes.post("/save", async (req, res) => {
   res.header("Content-Type", "application/json")
   const content = JSON.stringify(req.body.faces)

@@ -39,10 +39,11 @@ export default {
       drawer: true,
       fixed: false,
       items: [
+        { icon: 'login', title: '登陆', to: '/Login' },
         { icon: 'home', title: '欢迎', to: '/' },
         { icon: 'people', title: '人脸数据库', to: '/users' },
-        { icon: 'wallpaper', title: '本地图片检测', to: '/train' },
-        { icon: 'camera', title: '摄像头检测', to: '/recognize' }
+        { icon: 'wallpaper', title: '本地图片检测', to: '/imageRecog' },
+        { icon: 'camera', title: '摄像头检测', to: '/camRecog' }
       ],
       miniVariant: true,
       right: true,
