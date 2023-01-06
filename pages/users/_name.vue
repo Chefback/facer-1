@@ -116,6 +116,7 @@ export default {
     },
 
     async deleteUpload() {
+      //从选中的文件路径提取文件名并上传给服务器，服务器随即删除此文件。
       if (this.selectedPhoto) {
         const comps = this.selectedPhoto.split('/')
         await this.$store.dispatch('user/deletePhoto', {
@@ -126,13 +127,20 @@ export default {
         this.dialog = false
       }
     },
+    //每上传一张图片就上传到服务器
     filesChange(fieldName, fileList) {
       const self = this
       const formData = new FormData()
       formData.append('user', self.user.name)
+      //Array(x)创建长度为x的空数组,keys()根据数组索引生成迭代器
+      // from()浅拷贝一个数组
+      //map()将数组根据函数返回结果生成新数组
       Array.from(Array(fileList.length).keys()).map((x) => {
+        console.log(fieldName)
+        //将input里的file列表中的file对象按文件，文件名逐个加入到formdata
         formData.append(fieldName, fileList[x], fileList[x].name)
       })
+      //上传文件到服务器，后清空上传框
       return self.$store.dispatch('user/upload', formData)
         .then((result) => {
           if (document) {
@@ -145,6 +153,7 @@ export default {
       const canvas = document.getElementById('live-canvas')
       const canvasCtx = canvas.getContext('2d')
       canvasCtx.drawImage(video, 0, 0, 320, 247)
+      //将截取的视频帧绘制到canva上并转化为dataurl,上传给服务器
       const content = canvas.toDataURL('image/jpeg')
       await this.$store.dispatch('user/uploadBase64', {
         user: this.user.name,

@@ -1,7 +1,7 @@
 <template>
   <v-layout row align-center justify-center wrap>
     <v-flex>
-      <h1>Recognize</h1>
+      <h1>摄像头检测</h1>
     </v-flex>
     <v-flex xs12>
       <v-progress-circular v-if="isProgressActive" :rotate="360" :size="100" :width="15" :value="progress" color="teal">
@@ -10,13 +10,6 @@
     </v-flex>
     <v-flex v-if="!isProgressActive" xs12>
       <v-card>
-        <p>
-          <span>
-            Make some facial expressions that demonstrate emotions like
-            <v-icon>sentiment_satisfied_alt</v-icon>
-            <v-icon>sentiment_very_dissatisfied</v-icon>
-          </span>
-        </p>
         <v-card-actions class="justify-center">
           <v-btn-toggle v-model="withOptions" multiple>
             <v-btn>
@@ -24,16 +17,8 @@
               <span>Detection</span>
             </v-btn>
             <v-btn>
-              <v-icon>face</v-icon>
-              <span>Landmarks</span>
-            </v-btn>
-            <v-btn>
               <v-icon>how_to_reg</v-icon>
               <span>Recognition</span>
-            </v-btn>
-            <v-btn>
-              <v-icon>insert_emoticon</v-icon>
-              <span>Emotion</span>
             </v-btn>
           </v-btn-toggle>
         </v-card-actions>
@@ -66,7 +51,6 @@
 export default {
   data() {
     return {
-      url: 'https://teachablemachine.withgoogle.com/models/hBKYa4zJe/',
       interval: null,
       fps: 15,
       realFps: 0,
@@ -136,7 +120,7 @@ export default {
         }
         //从视频流中检测人脸
         const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options })
-        const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
+        // const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
         // console.log(maskDetections);
         // console.log(detections);
 

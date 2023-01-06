@@ -5,6 +5,7 @@ import { CustomMobileNet } from '@teachablemachine/image';
 
 export const state = () => ({
   faces: [],
+  faceimg: null,
   models: undefined,
   loading: false,
   loaded: false,
@@ -57,7 +58,8 @@ export const actions = {
     if (!state.loading && !state.loaded) {
       commit('loading')
       return Promise.all([
-        // faceapi.loadFaceRecognitionModel('/data/models'),
+        faceapi.loadFaceRecognitionModel('/data/models'),
+        faceapi.loadFaceLandmarkModel('/data/models'),
         faceapi.loadTinyFaceDetectorModel('/data/models'),
       ])
         .then(() => {
@@ -113,6 +115,7 @@ export const actions = {
         inputSize: state.detections.inputSize
       }))
 
+    detections = detections.withFaceLandmarks(state.useTiny)
     if (options && options.descriptorsEnabled) {
       detections = detections.withFaceDescriptors()
     }

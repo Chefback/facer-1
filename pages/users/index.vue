@@ -147,7 +147,9 @@ export default {
         id: null,
         name: null,
         phone: null,
-        sex: null, photos: null
+        sex: null,
+        photos: null,
+        createdAt: null
       },
       userlist: [],
       nameRules: [
@@ -160,13 +162,13 @@ export default {
           text: '用户ID',
           align: 'start',
           sortable: false,
-          value: 'name',
+          value: 'id',
         },
-        { text: '用户名', value: 'calories' },
-        { text: '用户性别', value: 'fat' },
-        { text: '用户电话号码', value: 'carbs' },
-        { text: '人脸信息录入', value: 'protein' },
-        { text: '创建时间', value: 'iron' },
+        { text: '用户名', value: 'name' },
+        { text: '用户性别', value: 'sex' },
+        { text: '用户电话号码', value: 'phone' },
+        { text: '人脸信息录入', value: 'photos' },
+        { text: '创建时间', value: 'createdAt' },
         { text: 'Actions', value: 'actions', sortable: false },
 
       ],
@@ -262,9 +264,13 @@ export default {
     register() {
       const self = this
       if (this.$refs.newuser.validate()) {
+        this.user.createdAt = Date.now()
+
         console.log('yes')
-        return this.$store.dispatch('user/register', this.user.name)
+        return this.$store.dispatch('user/register', this.user)
           .then(() => {
+            // localStorage.setItem('userlist',
+            //   JSON.stringify(self.$store.state.list))
             return self.$router.push({ path: `/users/${self.user.name}` })
           })
       }

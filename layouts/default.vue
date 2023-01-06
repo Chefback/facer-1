@@ -59,6 +59,8 @@ export default {
   },
   async mounted() {
     const self = this
+
+    // self.$store.state.list = JSON.parse(window.localStorage.getItem('userlist'))
     await self.$store.dispatch('face/load')
   }
 }

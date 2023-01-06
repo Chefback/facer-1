@@ -90,6 +90,7 @@ async function uploadFile(upload, req, res) {
 
 //上传base64
 async function uploadBase64(upload) {
+  //从接收到的dataurl获取data,并将接收到data写为文件
   const fileName = `${upload.user}_${Date.now()}.jpg`
   const imgPath = join(usersFolder, upload.user, fileName)
   const content = upload.content.split(',')[1]
@@ -223,12 +224,13 @@ userRoutes.post("/uploadBase64", async (req, res) => {
     })
 })
 
-//删除图片
+//删除选中图片
 userRoutes.post("/deletePhoto", async (req, res) => {
   res.header("Content-Type", "application/json")
   if (req.body.upload.user && req.body.upload.file) {
     const file = join(usersFolder, req.body.upload.user, req.body.upload.file)
     try {
+      //删除选中文件
       unlinkSync(file)
       res.send('ok')
     } catch (e) {

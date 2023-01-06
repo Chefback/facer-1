@@ -1,3 +1,5 @@
+import { list } from "pm2";
+
 export const state = () => ({
   list: [],
   fetched: false
@@ -5,14 +7,16 @@ export const state = () => ({
 
 export const mutations = {
   setUsers(state, users) {
+    // let photo2map = users.reduce((acc, curr) => {
+    //   acc[curr.name] = curr
+    //   return acc;
+    // }, {});
+    // let combined = state.list.map(d => Object.assign(d, photo2map[d.name]));
     state.list = users
     state.fetched = true
   },
-  addUser(state, name) {
-    state.list.push({
-      name,
-      photos: []
-    })
+  addUser(state, user) {
+    state.list.push(user)
   },
   removeUser(state, name) {
     for (let i = 0; i < state.list.length; i++) {
@@ -53,9 +57,9 @@ export const actions = {
     commit('setUsers', data)
     return data
   },
-  async register({ commit }, name) {
-    await this.$axios.$post('/api/user/register', { name })
-    commit('addUser', name)
+  async register({ commit }, user) {
+    await this.$axios.$post('/api/user/register', { user })
+    commit('addUser', user)
   },
   async delete({ commit }, name) {
     await this.$axios.$post('/api/user/delete', { name })
