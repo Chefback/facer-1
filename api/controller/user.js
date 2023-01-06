@@ -14,17 +14,14 @@ exports.create = (req, res) => {
 
     // Create a Tutorial
     const user = {
-        userid: req.body.userid,
         name: req.body.name,
         sex: req.body.sex,
         phone: req.body.phone,
-        createdAt: req.body.createdAt,
-        modifiedAt: req.body.modifiedAt,
         photos: req.body.photos,
     };
 
     // Save Tutorial in the database
-    Tutorial.create(tutorial)
+    User.create(user)
         .then(data => {
             res.send(data);
         })
@@ -41,7 +38,7 @@ exports.findAll = (req, res) => {
     const title = req.query.title;
     var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
 
-    Tutorial.findAll({ where: condition })
+    User.findAll({ where: condition })
         .then(data => {
             res.send(data);
         })
@@ -57,7 +54,7 @@ exports.findAll = (req, res) => {
 exports.findOne = (req, res) => {
     const id = req.params.id;
 
-    Tutorial.findByPk(id)
+    User.findByPk(id)
         .then(data => {
             if (data) {
                 res.send(data);
@@ -78,7 +75,7 @@ exports.findOne = (req, res) => {
 exports.update = (req, res) => {
     const id = req.params.id;
 
-    Tutorial.update(req.body, {
+    User.update(req.body, {
         where: { id: id }
     })
         .then(num => {
@@ -103,7 +100,7 @@ exports.update = (req, res) => {
 exports.delete = (req, res) => {
     const id = req.params.id;
 
-    Tutorial.destroy({
+    User.destroy({
         where: { id: id }
     })
         .then(num => {
@@ -126,7 +123,7 @@ exports.delete = (req, res) => {
 
 // Delete all Tutorials from the database.
 exports.deleteAll = (req, res) => {
-    Tutorial.destroy({
+    User.destroy({
         where: {},
         truncate: false
     })
@@ -143,7 +140,7 @@ exports.deleteAll = (req, res) => {
 
 // find all published Tutorial
 exports.findAllPublished = (req, res) => {
-    Tutorial.findAll({ where: { published: true } })
+    User.findAll({ where: { published: true } })
         .then(data => {
             res.send(data);
         })

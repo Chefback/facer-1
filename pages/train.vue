@@ -88,10 +88,9 @@ export default {
           const img = document.getElementById(photoId)
           const options = {
             detectionsEnabled: true,
-            landmarksEnabled: true,
             descriptorsEnabled: true,
-            expressionsEnabled: false
           }
+          //检测注册用户的人脸数据
           const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: img, options })
           detections.forEach((d) => {
             descriptors.push({

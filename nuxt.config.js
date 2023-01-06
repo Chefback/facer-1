@@ -10,7 +10,6 @@ env.API_URL = process.env.API_URL || `http://localhost:${env.PORT_API}`
 const isDev = env.NODE_ENV === 'development'
 const config = {
   mode: 'universal',
-
   /*
    ** Headers of the page
    */
@@ -64,6 +63,7 @@ const config = {
    */
   plugins: [
     // '@/plugins/vuetify'
+    '@/plugins/userAuth'
   ],
 
   /*

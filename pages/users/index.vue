@@ -2,17 +2,10 @@
   <v-layout row wrap>
     <v-flex xs12>
       <v-card>
-        <v-card-actions>
-          <v-form ref="form" v-model="valid" lazy-validation>
-            <v-text-field v-model="name" :rules="nameRules" label="请输入名字" required />
-            <v-spacer />
-            <v-btn :disabled="!valid" @click="register()" color="primary">注册新用户</v-btn>
-          </v-form>
-        </v-card-actions>
         <v-dialog v-model="dialog" persistent max-width="320">
           <v-card>
             <v-card-title class="headline">警告！</v-card-title>
-            <v-card-text>确定删除此用户吗？</v-card-text>
+            <v-card-text>确定删除用户{{ selectedUser }}吗？</v-card-text>
             <v-card-actions>
               <v-spacer />
               <v-btn @click="hideDialog()" color="green darken-1" flat>取消</v-btn>
@@ -60,59 +53,65 @@
       </v-list>
     </v-flex>
     <v-flex>
-      <v-data-table :headers="headers" :items="desserts" sort-by="calories" class="elevation-1">
+      <v-data-table :headers="headers" :items="users" sort-by="calories" class="elevation-1">
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title>人脸信息管理</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
             <v-spacer></v-spacer>
-            <v-dialog v-model="dialog" max-width="500px">
+            <v-dialog v-model="newdialog" max-width="500px">
+
               <template v-slot:activator="{ on, attrs }">
                 <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">添加新用户</v-btn>
               </template>
-              <v-card>
-                <v-card-title>
-                  <span class="text-h5">{{ formTitle }}</span>
-                </v-card-title>
+              <v-form ref="newuser" v-model="valid" lazy-validation>
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h5">{{ formTitle }}</span>
+                  </v-card-title>
 
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field v-model="editedItem.name" label="Dessert name"></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field v-model="editedItem.calories" label="Calories"></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field v-model="editedItem.fat" label="Fat (g)"></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field v-model="editedItem.carbs" label="Carbs (g)"></v-text-field>
-                      </v-col>
-                      <v-col cols="12" sm="6" md="4">
-                        <v-text-field v-model="editedItem.protein" label="Protein (g)"></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-card-text>
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-text-field v-model="user.id" label="用户ID"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-text-field v-model="user.name" label="用户名"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-text-field v-model="user.phone" label="电话号码"></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6" md="4">
+                          <v-select v-model="user.sex" :items="sex" label=" 性别" solo></v-select>
+                        </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-card-text>
 
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="close">取消</v-btn>
-                  <v-btn color="blue darken-1" text @click="save">保存</v-btn>
-                </v-card-actions>
-              </v-card>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="blue darken-1" text @click="register">保存</v-btn>
+                    <v-btn color="blue darken-1" text @click="close">取消</v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-form>
             </v-dialog>
             <v-dialog v-model="dialogDelete" max-width="500px">
               <v-card>
-                <v-card-title class="text-h5">是否删除此用户</v-card-title>
+                <v-card-title class="headline">警告！</v-card-title>
+                <v-card-text>确定删除用户{{ selectedUser }}吗？</v-card-text>
                 <v-card-actions>
+                  <v-spacer />
+                  <v-btn @click="closeDelete()" color="green darken-1" flat>取消</v-btn>
+                  <v-btn @click="deleteItemConfirm()" color="green darken-1" flat>确定</v-btn>
+                </v-card-actions>
+                <!-- <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="blue darken-1" text @click="closeDelete">取消</v-btn>
                   <v-btn color="blue darken-1" text @click="deleteItemConfirm">确认</v-btn>
                   <v-spacer></v-spacer>
-                </v-card-actions>
+                </v-card-actions> -->
               </v-card>
             </v-dialog>
           </v-toolbar>
@@ -144,10 +143,18 @@ export default {
       selectedUser: null,
       valid: true,
       name: null,
+      user: {
+        id: null,
+        name: null,
+        phone: null,
+        sex: null, photos: null
+      },
+      userlist: [],
       nameRules: [
         v => !!v || 'Full name is required',
         v => (v && v.length > 1) || '请输入两个字以上的名字'
       ],
+      sex: ['男', '女', '未知'],
       headers: [
         {
           text: '用户ID',
@@ -184,116 +191,45 @@ export default {
 
   computed: {
     users() {
+      console.log(this.$store.state.user.list)
       return this.$store.state.user.list
-    }, formTitle() {
-      return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
     },
-  }, watch: {
-    dialog(val) {
+    formTitle() {
+      return this.editedIndex === -1 ? '新用户' : '修改用户'
+    },
+  },
+  watch: {
+    newdialog(val) {
       val || this.close()
     },
     dialogDelete(val) {
       val || this.closeDelete()
     },
   },
-  created() {
-    this.initialize()
-  },
   fetch({ store }) {
     return store.dispatch('user/getAll')
   },
 
   methods: {
-    initialize() {
-      this.desserts = [
-        {
-          name: 'Frozen Yogurt',
-          calories: 159,
-          fat: 6.0,
-          carbs: 24,
-          protein: 4.0,
-        },
-        {
-          name: 'Ice cream sandwich',
-          calories: 237,
-          fat: 9.0,
-          carbs: 37,
-          protein: 4.3,
-        },
-        {
-          name: 'Eclair',
-          calories: 262,
-          fat: 16.0,
-          carbs: 23,
-          protein: 6.0,
-        },
-        {
-          name: 'Cupcake',
-          calories: 305,
-          fat: 3.7,
-          carbs: 67,
-          protein: 4.3,
-        },
-        {
-          name: 'Gingerbread',
-          calories: 356,
-          fat: 16.0,
-          carbs: 49,
-          protein: 3.9,
-        },
-        {
-          name: 'Jelly bean',
-          calories: 375,
-          fat: 0.0,
-          carbs: 94,
-          protein: 0.0,
-        },
-        {
-          name: 'Lollipop',
-          calories: 392,
-          fat: 0.2,
-          carbs: 98,
-          protein: 0,
-        },
-        {
-          name: 'Honeycomb',
-          calories: 408,
-          fat: 3.2,
-          carbs: 87,
-          protein: 6.5,
-        },
-        {
-          name: 'Donut',
-          calories: 452,
-          fat: 25.0,
-          carbs: 51,
-          protein: 4.9,
-        },
-        {
-          name: 'KitKat',
-          calories: 518,
-          fat: 26.0,
-          carbs: 65,
-          protein: 7,
-        },
-      ]
-    },
     editItem(item) {
-      this.editedIndex = this.desserts.indexOf(item)
+      this.editedIndex = this.userlist.indexOf(item)
       this.editedItem = Object.assign({}, item)
-      this.dialog = true
+      this.newdialog = true
     },
     deleteItem(item) {
-      this.editedIndex = this.desserts.indexOf(item)
+      this.editedIndex = this.userlist.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
+      // this.dialog = true
+      this.selectedUser = item.name
     },
     deleteItemConfirm() {
-      this.desserts.splice(this.editedIndex, 1)
+      this.userlist.splice(this.editedIndex, 1)
       this.closeDelete()
     },
     close() {
-      this.dialog = false
+      this.newdialog = false
+      this.$refs.newuser.reset()
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -308,18 +244,28 @@ export default {
     },
     save() {
       if (this.editedIndex > -1) {
-        Object.assign(this.desserts[this.editedIndex], this.editedItem)
+        Object.assign(this.userlist[this.editedIndex], this.editedItem)
       } else {
-        this.desserts.push(this.editedItem)
+        this.userlist.push(this.editedItem)
+      }
+
+      const self = this
+      if (this.$refs.newuser.validate()) {
+        console.log('yes')
+        return this.$store.dispatch('user/register', this.user.name)
+          .then(() => {
+            return self.$router.push({ path: `/users/${self.user.name}` })
+          })
       }
       this.close()
     },
     register() {
       const self = this
-      if (this.$refs.form.validate()) {
-        return this.$store.dispatch('user/register', this.name)
+      if (this.$refs.newuser.validate()) {
+        console.log('yes')
+        return this.$store.dispatch('user/register', this.user.name)
           .then(() => {
-            return self.$router.push({ path: `/users/${self.name}` })
+            return self.$router.push({ path: `/users/${self.user.name}` })
           })
       }
     },

@@ -17,12 +17,7 @@ sharp.cache(false)
 const multer = require("multer")
 const userRoutes = express.Router()
 //导入数据库
-const db = require("../models");
-const User = db.User;
-const Admin = db.Admin;
-const Recognition = db.Recognition;
-const Op = db.Sequelize.Op;
-
+// const User = require('./user')
 //文件夹路径
 const rootFolder = join(__dirname, '../../')
 const dataFolder = join(rootFolder, 'data')
@@ -39,6 +34,7 @@ const storage = multer.diskStorage({
     callback(null, filename)
   }
 })
+
 //获取用户图片函数
 const getUserPhotos = (user) => {
   const userFolder = join(usersFolder, user)
@@ -54,10 +50,64 @@ const getUserPhotos = (user) => {
   return result;
 }
 
-//获取全部
+//上传文件函数
+async function uploadFile(upload, req, res) {
+  return new Promise(async (resolve, reject) => {
+    await upload(req, res, async (err) => {
+      if (err) {
+        reject(new Error('Error uploading file'))
+        return
+      }
+
+      const result = [];
+      await Promise.all(req.files.map(async file => {
+        //读取旧目录的图片并进行修改，修改完后保存到新目录，并删除旧文件
+        try {
+          const oldPath = join(usersFolder, file.filename)
+          const newPath = join(usersFolder, req.body.user, file.filename)
+          const buffer = readFileSync(oldPath)
+
+          await sharp(buffer)
+            .resize(320, 247)
+            .toFile(newPath)
+            .then(() => {
+              result.push(`/data/users/${req.body.user}/${file.filename}`)
+              try {
+                unlinkSync(oldPath)
+              } catch (ex) {
+                console.log(ex)
+              }
+            })
+        } catch (e) {
+          reject(e)
+          return
+        }
+      }))
+      resolve(result)
+    })
+  })
+}
+
+//上传base64
+async function uploadBase64(upload) {
+  const fileName = `${upload.user}_${Date.now()}.jpg`
+  const imgPath = join(usersFolder, upload.user, fileName)
+  const content = upload.content.split(',')[1]
+  return new Promise(async (resolve, reject) => {
+    writeFile(imgPath, content, 'base64', (err) => {
+      if (err) {
+        reject(new Error(err))
+      }
+      resolve([`/data/users/${upload.user}/${fileName}`])
+    })
+  })
+}
+
+//获取全部用户的图片
 userRoutes.get("/getAll", (req, res) => {
   res.header("Content-Type", "application/json")
   const isDirectory = source => lstatSync(source).isDirectory()
+  //从路径中
   const getDirectories = source => readdirSync(source)
     .map(name => join(source, name))
     .filter(isDirectory)
@@ -72,7 +122,7 @@ userRoutes.get("/getAll", (req, res) => {
   res.send(result);
 })
 
-//获取图片
+//获取特定用户图片
 userRoutes.get("/get-photos", (req, res) => {
   res.header("Content-Type", "application/json")
   const result = getUserPhotos(req.query.user)
@@ -82,8 +132,8 @@ userRoutes.get("/get-photos", (req, res) => {
 //用户注册
 userRoutes.post("/register", (req, res) => {
   res.header("Content-Type", "application/json")
-  if (req.body.name) {
-    const newFolder = join(usersFolder, req.body.name)
+  if (req.body.user) {
+    const newFolder = join(usersFolder, req.body.user.name)
     if (!existsSync(newFolder)) {
       mkdirSync(newFolder)
       res.send('ok')
@@ -207,57 +257,5 @@ async function deleteFolder(name) {
   })
 }
 
-//上传文件函数
-async function uploadFile(upload, req, res) {
-  return new Promise(async (resolve, reject) => {
-    await upload(req, res, async (err) => {
-      if (err) {
-        reject(new Error('Error uploading file'))
-        return
-      }
-
-      const result = [];
-      await Promise.all(req.files.map(async file => {
-        //读取旧目录的图片并进行修改，修改完后保存到新目录，并删除旧文件
-        try {
-          const oldPath = join(usersFolder, file.filename)
-          const newPath = join(usersFolder, req.body.user, file.filename)
-          const buffer = readFileSync(oldPath)
-
-          await sharp(buffer)
-            .resize(320, 247)
-            .toFile(newPath)
-            .then(() => {
-              result.push(`/data/users/${req.body.user}/${file.filename}`)
-              try {
-                unlinkSync(oldPath)
-              } catch (ex) {
-                console.log(ex)
-              }
-            })
-        } catch (e) {
-          reject(e)
-          return
-        }
-      }))
-      resolve(result)
-    })
-  })
-}
-
-//上传base64
-async function uploadBase64(upload) {
-  const fileName = `${upload.user}_${Date.now()}.jpg`
-  const imgPath = join(usersFolder, upload.user, fileName)
-  const content = upload.content.split(',')[1]
-  return new Promise(async (resolve, reject) => {
-    writeFile(imgPath, content, 'base64', (err) => {
-      if (err) {
-        reject(new Error(err))
-      }
-      resolve([`/data/users/${upload.user}/${fileName}`])
-    })
-  })
-}
 
 module.exports = userRoutes

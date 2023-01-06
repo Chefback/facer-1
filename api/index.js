@@ -26,13 +26,13 @@ app.use(function (req, res, next) {
 const dataFolder = join(__dirname, '..', 'data')
 app.use("/data", express.static(dataFolder))
 
-const db = require("./models");
-db.sequelize.sync().then(() => {
-  console.log("Synced db.");
-})
-  .catch((err) => {
-    console.log("Failed to sync db: " + err.message);
-  });
+// const db = require("./models");
+// db.sequelize.sync().then(() => {
+//   console.log("Synced db.");
+// })
+//   .catch((err) => {
+//     console.log("Failed to sync db: " + err.message);
+//   });
 
 // API routes
 const apiRoutes = express.Router()

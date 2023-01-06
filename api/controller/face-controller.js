@@ -9,7 +9,6 @@ const modelRoutes = express.Router()
 const rootFolder = join(__dirname, '../../')
 const dataFolder = join(rootFolder, 'data')
 const facesFileName = 'faces.json'
-const modelFileName = ['model.json', 'metadata.json', 'model.weights.bin']
 
 //传输脸部特征文件
 modelRoutes.get("/getAll", (req, res) => {
@@ -29,5 +28,14 @@ modelRoutes.post("/save", async (req, res) => {
   writeFileSync(join(dataFolder, facesFileName), content)
   res.send('ok')
 })
+
+//传输注册脸部描述器
+modelRoutes.get("/getDescriptor", async (req, res) => {
+  res.header("Content-Type", "application/json")
+  const content = JSON.stringify(req.body.faces)
+  writeFileSync(join(dataFolder, facesFileName), content)
+  res.send('ok')
+})
+
 
 module.exports = modelRoutes

@@ -9,11 +9,11 @@ export const state = () => ({
   loading: false,
   loaded: false,
   faceMatcher: null,
-  URL: 'https://teachablemachine.withgoogle.com/models/hBKYa4zJe/',
+  maskClassfier: null,
   useTiny: false,
   detections: {
     scoreThreshold: 0.5,
-    inputSize: 320,
+    inputSize: 160,
     boxColor: 'blue',
     textColor: 'red',
     lineWidth: 1,
@@ -23,14 +23,11 @@ export const state = () => ({
   expressions: {
     minConfidence: 0.2
   },
-  landmarks: {
-    drawLines: true,
-    lineWidth: 1
-  },
   descriptors: {
     withDistance: false
   }
 })
+//注册的人脸描述器放在后端与前端的视频流描述进行匹配识别
 
 export const mutations = {
   loading(state) {
@@ -50,16 +47,18 @@ export const mutations = {
     state.faceMatcher = matcher
   },
 
+  setMaskClassfier(state, classifier) {
+    state.maskClassfier = classifier
+  },
+
 }
 export const actions = {
   load({ commit, state }) {
     if (!state.loading && !state.loaded) {
       commit('loading')
       return Promise.all([
-        faceapi.loadFaceRecognitionModel('/data/models'),
-        faceapi.loadFaceLandmarkModel('/data/models'),
+        // faceapi.loadFaceRecognitionModel('/data/models'),
         faceapi.loadTinyFaceDetectorModel('/data/models'),
-        faceapi.loadFaceExpressionModel('/data/models')
       ])
         .then(() => {
           commit('load')
@@ -80,6 +79,7 @@ export const actions = {
     commit('setFaces', data)
   },
   getFaceMatcher({ commit, state }) {
+    //从服务器获取的提取的特征文件中提取注册人脸的描述器
     const labeledDescriptors = []
     state.faces.forEach((face) => {
       const descriptors = face.descriptors.map((desc) => {
@@ -99,46 +99,35 @@ export const actions = {
           ))
       }
     })
+    //将现存的描述器作为参数构造新匹配器
     const matcher = new faceapi.FaceMatcher(labeledDescriptors)
     commit('setFaceMatcher', matcher)
     return matcher
   },
+
   async getFaceDetections({ commit, state }, { canvas, options }) {
+    //从视频流中检测人脸，选择TinyYolov2作为检测算法
     let detections = faceapi
       .detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions({
         scoreThreshold: state.detections.scoreThreshold,
         inputSize: state.detections.inputSize
       }))
 
-    if (options && (options.landmarksEnabled || options.descriptorsEnabled)) {
-      detections = detections.withFaceLandmarks(state.useTiny)
-    }
-    if (options && options.expressionsEnabled) {
-      detections = detections.withFaceExpressions()
-    }
     if (options && options.descriptorsEnabled) {
       detections = detections.withFaceDescriptors()
     }
     detections = await detections
     return detections
   },
-  async getMaskDetections({ commit, state }, { canvas }) {
 
-    // let model = await tmImage.loadFromFiles(model1, weights, metadata)
+  async getMaskModel({ commit, state }, { canvas }) {
+
     const customModel = await tf.loadLayersModel('../data/model.json')
     const model = new CustomMobileNet(customModel, metadataJSON);
-    let maskDetections = model.predict(canvas)
-    // if (options && (options.landmarksEnabled || options.descriptorsEnabled)) {
-    //   detections = detections.withFaceLandmarks(state.useTiny)
-    // }
-    // if (options && options.expressionsEnabled) {
-    //   detections = detections.withFaceExpressions()
-    // }
-    // if (options && options.descriptorsEnabled) {
-    //   detections = detections.withFaceDescriptors()
-    // }
-    // maskDetections = await maskDetections
-    return maskDetections
+
+    commit('setMaskClassfier', model)
+    return model
+
   },
 
   async recognize({ commit, state }, { descriptor, options }) {
@@ -148,42 +137,24 @@ export const actions = {
     }
     return null
   },
-  // [
-  //   {
-  //     "className": "Mask",
-  //     "probability": 0.014806561172008514
-  //   },
-  //   {
-  //     "className": "No Mask",
-  //     "probability": 0.9851934313774109
-  //   }
-  // ],
 
+  async classify({ commit, state }, { canvas }) {
+    const result = await state.maskClassfier.predict(canvas)
+    return result
+  },
   draw({ commit, state }, { canvasDiv, canvasCtx, detection, options }) {
 
-    let emotions = ''
-    // filter only emontions above confidence threshold and exclude 'neutral'
-    if (options.expressionsEnabled && detection.expressions) {
-      for (const expr in detection.expressions) {
-        if (detection.expressions[expr] > state.expressions.minConfidence && expr !== 'neutral') {
-          emotions += ` ${expr} &`
-        }
-      }
-      if (emotions.length) {
-        emotions = emotions.substring(0, emotions.length - 2)
-      }
-    }
     let name = ''
     if (options.descriptorsEnabled && detection.recognition) {
-      name = detection.recognition.toString(state.descriptors.withDistance)
+      // name = detection.recognition.toString(state.descriptors.withDistance)
+      name = detection.recognition.toString()
     }
+
     let maskon = ''
     if (detection.maskdetect) {
       if (detection.maskdetect[0].probability > detection.maskdetect[1].probability) {
-
         maskon = '已佩戴口罩'
       } else {
-
         maskon = '未佩戴口罩'
       }
     }
@@ -204,9 +175,6 @@ export const actions = {
       canvasCtx.fillText(text, box.x + padText, box.y + box.height + padText + (state.detections.fontSize * 0.6))
     }
 
-    if (options.landmarksEnabled && detection.landmarks) {
-      faceapi.draw.drawFaceLandmarks(canvasDiv, detection.landmarks, { lineWidth: state.landmarks.lineWidth, drawLines: state.landmarks.drawLines })
-    }
   },
 
   async createCanvas({ commit, state }, elementId) {

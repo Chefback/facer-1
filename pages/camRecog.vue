@@ -87,26 +87,33 @@ export default {
 
   watch: {
     fps(newFps) {
+      //获取视频组件对象
       const videoDiv = document.getElementById('live-video')
+
+      //获取画布组件对象
       const canvasDiv = document.getElementById('live-canvas')
+
+      //获取画布组件上下文,实际绘制在这上面进行
       const canvasCtx = canvasDiv.getContext('2d')
+
       this.start(videoDiv, canvasDiv, canvasCtx, newFps)
     }
   },
 
   async beforeMount() {
+    //挂载前先从服务器获取脸部特征文件，再从特征文件中提取描述器作为匹配器的已知参数
     const self = this
     await self.$store.dispatch('face/getAll')
       .then(() => self.$store.dispatch('face/getFaceMatcher'))
-
-    //todo
   },
 
   async mounted() {
+    //DOM挂载后，加载摄像头
     await this.recognize()
   },
 
   beforeDestroy() {
+    //离开页面时关闭摄像头
     if (this.interval) {
       clearInterval(this.interval)
     }
@@ -121,13 +128,13 @@ export default {
       }
       self.interval = setInterval(async () => {
         const t0 = performance.now()
+        //将video组件绘制到canva上
         canvasCtx.drawImage(videoDiv, 0, 0, 320, 247)
         const options = {
           detectionsEnabled: self.withOptions.find(o => o === 0) === 0,
-          landmarksEnabled: self.withOptions.find(o => o === 1) === 1,
           descriptorsEnabled: self.withOptions.find(o => o === 2) === 2,
-          expressionsEnabled: self.withOptions.find(o => o === 3) === 3
         }
+        //从视频流中检测人脸
         const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options })
         const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
         // console.log(maskDetections);
@@ -139,12 +146,15 @@ export default {
             self.isProgressActive = false
           }
           detections.forEach(async (detection) => {
+            //添加人脸识别结果
             detection.recognition = await self.$store.dispatch('face/recognize', {
               descriptor: detection.descriptor,
               options
             }),
+              //添加口罩识别项
               detection.maskdetect = await maskDetections
             // console.log(detection, '检测结果')
+            //画出识别结果
             self.$store.dispatch('face/draw',
               {
                 canvasDiv,

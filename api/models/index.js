@@ -47,9 +47,9 @@ var sequelize = new Sequelize(
 
 let User = sequelize.define('user', {
     userid: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.DataTypes.UUID,
         primaryKey: true,
-        defaultValue: BaseModel.uid()
+        defaultValue: Sequelize.DataTypes.UUIDV4
     },
     name: {
         type: Sequelize.STRING(20),
@@ -69,35 +69,16 @@ let User = sequelize.define('user', {
     },
 }, {
     indexes: [
-        {
-            name: 'index_user_1',
-            fields: ['mail'],
-            unique: true
-        },
-        {
-            name: 'index_user_2',
-            fields: ['mail', 'passwd']
-        }
     ],
     getterMethods: {
-        to_dict: function () {
-            return {
-                id: this.id.toString(),
-                name: this.name
-            }
-        }
     }
 });
 
 let Admin = sequelize.define('admin', {
     id: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.DataTypes.UUID,
         primaryKey: true,
-        defaultValue: BaseModel.uid()
-    },
-    createdAt: {
-        type: Sequelize.STRING(50),
-        allowNull: false
+        defaultValue: Sequelize.DataTypes.UUIDV4
     },
     name: {
         type: Sequelize.STRING(20),
@@ -105,31 +86,16 @@ let Admin = sequelize.define('admin', {
     }
 }, {
     indexes: [
-        {
-            name: 'index_user_1',
-            fields: ['mail'],
-            unique: true
-        },
-        {
-            name: 'index_user_2',
-            fields: ['mail', 'passwd']
-        }
     ],
     getterMethods: {
-        to_dict: function () {
-            return {
-                id: this.id.toString(),
-                name: this.name
-            }
-        }
     }
 });
 
 let Recognition = sequelize.define('recognition', {
     id: {
-        type: Sequelize.BIGINT,
+        type: Sequelize.DataTypes.UUID,
         primaryKey: true,
-        defaultValue: BaseModel.uid()
+        defaultValue: Sequelize.DataTypes.UUIDV4
     },
     recognition: {
         type: Sequelize.STRING(20),
@@ -137,23 +103,8 @@ let Recognition = sequelize.define('recognition', {
     },
 }, {
     indexes: [
-        {
-            name: 'index_user_1',
-            fields: ['mail'],
-            unique: true
-        },
-        {
-            name: 'index_user_2',
-            fields: ['mail', 'passwd']
-        }
     ],
     getterMethods: {
-        to_dict: function () {
-            return {
-                id: this.id.toString(),
-                name: this.name
-            }
-        }
     }
 });
 module.exports = { User, Admin, Recognition };

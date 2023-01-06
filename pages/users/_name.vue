@@ -21,7 +21,6 @@
         <v-tab href="#tab-1">上传</v-tab>
 
         <v-tab href="#tab-2">拍照</v-tab>
-        <v-tab href="#tab-3">上传口罩模型</v-tab>
 
         <v-tab-item value="tab-1">
           <v-card flat>
@@ -49,15 +48,6 @@
           </v-card>
         </v-tab-item>
 
-        <v-tab-item value="tab-3">
-          <v-card flat>
-            <form method="POST" class="form-documents" enctype="multipart/form-data">
-              上传口罩模型
-              <input id="modelUpload" :multiple="multiple" @change="filesModel($event.target.name, $event.target.files)"
-                type="file" name="modelUpload">
-            </form>
-          </v-card>
-        </v-tab-item>
       </v-tabs>
     </v-flex>
     <v-flex v-for="(photo, index) in user.photos" :key="photo" xs12 md6 lg4>

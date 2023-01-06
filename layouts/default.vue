@@ -20,11 +20,11 @@
     </v-app-bar>
     <v-main>
       <v-container fluid>
-        <v-progress-circular v-if="loading" :size="200" :width="20" color="red" indeterminate>
+        <!-- <v-progress-circular v-if="loading" :size="200" :width="20" color="red" indeterminate>
           Loading 7MB models.
           <br>
           Please be patient...
-        </v-progress-circular>
+        </v-progress-circular> -->
         <nuxt />
       </v-container>
     </v-main>
@@ -39,7 +39,6 @@ export default {
       drawer: true,
       fixed: false,
       items: [
-        { icon: 'login', title: '登陆', to: '/Login' },
         { icon: 'home', title: '欢迎', to: '/' },
         { icon: 'people', title: '人脸数据库', to: '/users' },
         { icon: 'wallpaper', title: '本地图片检测', to: '/imageRecog' },
