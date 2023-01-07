@@ -53,7 +53,7 @@
       </v-list>
     </v-flex> -->
     <v-flex>
-      <v-data-table :headers="headers" :items="users" sort-by="calories" class="elevation-1">
+      <v-data-table :headers="headers" :items="users" sort-by="calories" hide-default-footer class="elevation-1">
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title>人脸信息管理</v-toolbar-title>
@@ -265,7 +265,8 @@ export default {
     register() {
       const self = this
       if (this.$refs.newuser.validate()) {
-        this.user.createdAt = Date.now()
+        const now = Date.now()
+        this.user.createdAt = new Date(now).toUTCString()
 
         console.log('yes')
         return this.$store.dispatch('user/register', this.user)
