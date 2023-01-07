@@ -2,6 +2,14 @@
 <template>
     <v-layout align-center justify-center>
         <v-flex xs12 sm8 md4>
+            <v-snackbar v-model="alert">
+                帐号或密码错误
+                <template v-slot:action="{ attrs }">
+                    <v-btn color="red" text v-bind="attrs" @click="alert = false">
+                        关闭
+                    </v-btn>
+                </template>
+            </v-snackbar>
             <v-card class="elevation-12">
                 <v-toolbar dark color="primary">
                     <v-toolbar-title>口罩识别系统管理员登陆</v-toolbar-title>
@@ -28,6 +36,7 @@ export default {
     layout: 'login',
     data() {
         return {
+            alert: null,
             formLogin: {
                 username: '',
                 password: '',
@@ -45,6 +54,8 @@ export default {
                 this.$router.push({
                     path: `/`
                 })
+            } else {
+                this.alert = true
             }
         },
         reset() {
