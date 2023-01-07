@@ -56,7 +56,7 @@
       <v-data-table :headers="headers" :items="users" sort-by="calories" class="elevation-1">
         <template v-slot:top>
           <v-toolbar flat>
-            <v-toolbar-title>人脸信息管理</v-toolbar-title>
+            <v-toolbar-title>管理员页面</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
             <v-spacer></v-spacer>
             <v-dialog v-model="newdialog" max-width="500px">
@@ -74,16 +74,13 @@
                     <v-container>
                       <v-row>
                         <v-col cols="12" sm="6" md="4">
-                          <v-text-field v-model="user.id" label="用户ID"></v-text-field>
+                          <v-text-field v-model="admin.id" label="管理员ID"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
-                          <v-text-field v-model="user.name" label="用户名"></v-text-field>
+                          <v-text-field v-model="admin.name" label="管理员用户名"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
-                          <v-text-field v-model="user.phone" label="电话号码"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-select v-model="user.sex" :items="sex" label=" 性别" solo></v-select>
+                          <v-text-field v-model="admin.password" label="密码"></v-text-field>
                         </v-col>
                       </v-row>
                     </v-container>
@@ -106,12 +103,6 @@
                   <v-btn @click="closeDelete()" color="green darken-1" flat>取消</v-btn>
                   <v-btn @click="deleteItemConfirm()" color="green darken-1" flat>确定</v-btn>
                 </v-card-actions>
-                <!-- <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="closeDelete">取消</v-btn>
-                  <v-btn color="blue darken-1" text @click="deleteItemConfirm">确认</v-btn>
-                  <v-spacer></v-spacer>
-                </v-card-actions> -->
               </v-card>
             </v-dialog>
           </v-toolbar>
@@ -143,12 +134,10 @@ export default {
       selectedUser: null,
       valid: true,
       name: null,
-      user: {
+      admin: {
         id: null,
         name: null,
-        phone: null,
-        sex: null,
-        photos: null,
+        password: null,
         createdAt: null
       },
       userlist: [],
@@ -159,15 +148,13 @@ export default {
       sex: ['男', '女', '未知'],
       headers: [
         {
-          text: '用户ID',
+          text: '管理员ID',
           align: 'start',
           sortable: false,
           value: 'id',
         },
-        { text: '用户名', value: 'name' },
-        { text: '用户性别', value: 'sex' },
-        { text: '用户电话号码', value: 'phone' },
-        { text: '人脸信息录入', value: 'photos' },
+        { text: '管理员用户名', value: 'name' },
+        { text: '密码', value: 'password' },
         { text: '创建时间', value: 'createdAt' },
         { text: 'Actions', value: 'actions', sortable: false },
 
