@@ -269,8 +269,8 @@ export default {
         console.log('yes')
         return this.$store.dispatch('user/register', this.user)
           .then(() => {
-            // localStorage.setItem('userlist',
-            //   JSON.stringify(self.$store.state.list))
+            localStorage.setItem('userlist',
+              JSON.stringify(self.$store.state.list))
             return self.$router.push({ path: `/users/${self.user.name}` })
           })
       }

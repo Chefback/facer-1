@@ -125,10 +125,6 @@ export default {
         // console.log(detections);
 
         if (detections.length) {
-          if (self.isProgressActive) {
-            self.increaseProgress()
-            self.isProgressActive = false
-          }
           detections.forEach(async (detection) => {
             //添加人脸识别结果
             detection.recognition = await self.$store.dispatch('face/recognize', {
@@ -155,7 +151,6 @@ export default {
     },
     async recognize() {
       const self = this
-      self.increaseProgress()
       await self.$store.dispatch('camera/startCamera')
         .then((stream) => {
           const videoDiv = document.getElementById('live-video')
@@ -163,15 +158,10 @@ export default {
           const canvasCtx = canvasDiv.getContext('2d')
           videoDiv.srcObject = stream
 
-          self.increaseProgress()
           self.start(videoDiv, canvasDiv, canvasCtx, self.fps)
         })
     },
 
-    increaseProgress() {
-      const self = this
-      self.progress = (100 / self.step) * ++self.counter
-    }
   }
 }
 </script>

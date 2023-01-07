@@ -7,14 +7,13 @@
       <v-card flat>
         <form method="POST" class="form-documents" enctype="multipart/form-data">
           上传图片
-          <input id="fileUpload" @change="filesChange($event.target.name, $event.target.files)" type="file"
-            name="fileUpload">
+          <input id="fileUpload" @change="filesChange($event)" type="file" name="fileUpload">
         </form>
       </v-card>
       <v-btn @click="start()" fab small color="primary" dark>检测</v-btn>
     </v-flex>
     <v-flex xs12 md6>
-      <img :id="user.name + index" :src="faceImg" width="320" height="247">
+      <img :id="faceImg" :src="faceImg" width="320" height="247">
     </v-flex>
     <v-flex xs12 md6>
       <canvas id="live-canvas" width="320" height="247" />
@@ -64,23 +63,14 @@ export default {
     //每上传一张图片就上传到服务器
     filesChange(fieldName, fileList) {
       const self = this
-      const formData = new FormData()
-      formData.append('user', self.user.name)
-      //Array(x)创建长度为x的空数组,keys()根据数组索引生成迭代器
-      // from()浅拷贝一个数组
-      //map()将数组根据函数返回结果生成新数组
-      Array.from(Array(fileList.length).keys()).map((x) => {
-        console.log(fieldName)
-        //将input里的file列表中的file对象按文件，文件名逐个加入到formdata
-        formData.append(fieldName, fileList[x], fileList[x].name)
-      })
-      //上传文件到服务器，后清空上传框
-      return self.$store.dispatch('user/upload', formData)
-        .then((result) => {
-          if (document) {
-            document.getElementById('fileUpload').value = ''
-          }
-        })
+      let files = e.target.files[0];//图片文件名
+      if (!e || !window.FileReader) return; // 看是否支持FileReader
+      let reader = new FileReader();
+      reader.readAsDataURL(files); // 关键一步，在这里转换的
+      reader.onloadend = function () {
+        self.faceImg = this.result;//赋值
+      }
+
     },
     start(videoDiv, canvasDiv, canvasCtx, fps) {
       const self = this
@@ -102,10 +92,6 @@ export default {
         // console.log(detections);
 
         if (detections.length) {
-          if (self.isProgressActive) {
-            self.increaseProgress()
-            self.isProgressActive = false
-          }
           detections.forEach(async (detection) => {
             //添加人脸识别结果
             detection.recognition = await self.$store.dispatch('face/recognize', {
