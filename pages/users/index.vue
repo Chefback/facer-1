@@ -1,6 +1,6 @@
 <template>
   <v-layout row wrap>
-    <v-flex xs12>
+    <!-- <v-flex xs12>
       <v-card>
         <v-dialog v-model="dialog" persistent max-width="320">
           <v-card>
@@ -51,13 +51,14 @@
           </v-list-item-action>
         </v-list-item>
       </v-list>
-    </v-flex>
+    </v-flex> -->
     <v-flex>
       <v-data-table :headers="headers" :items="users" sort-by="calories" class="elevation-1">
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title>人脸信息管理</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
+            <v-btn color="primary" dark class="mb-2">训练模型</v-btn>
             <v-spacer></v-spacer>
             <v-dialog v-model="newdialog" max-width="500px">
 

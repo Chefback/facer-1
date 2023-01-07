@@ -151,7 +151,7 @@ export default {
     async takePhoto() {
       const video = document.getElementById('live-video')
       const canvas = document.getElementById('live-canvas')
-      const canvasCtx = canvas.getContext('2d')
+      const canvasCtx = canvas.getContext('2d', { willReadFrequently: true })
       canvasCtx.drawImage(video, 0, 0, 320, 247)
       //将截取的视频帧绘制到canva上并转化为dataurl,上传给服务器
       const content = canvas.toDataURL('image/jpeg')

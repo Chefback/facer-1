@@ -4,11 +4,6 @@
       <h1>摄像头检测</h1>
     </v-flex>
     <v-flex xs12>
-      <v-progress-circular v-if="isProgressActive" :rotate="360" :size="100" :width="15" :value="progress" color="teal">
-        Loading...
-      </v-progress-circular>
-    </v-flex>
-    <v-flex v-if="!isProgressActive" xs12>
       <v-card>
         <v-card-actions class="justify-center">
           <v-btn-toggle v-model="withOptions" multiple>
@@ -36,6 +31,8 @@
             </v-icon> Duration: {{ duration }} ms
           </v-chip>
         </p>
+        <v-btn color="primary" dark class="mb-2" @click="startCam()"> 检测</v-btn>
+        <v-btn color="primary" dark class="mb-2" @click="stopCam()">停止</v-btn>
       </v-card>
     </v-flex>
     <v-flex xs12 md6>
@@ -78,7 +75,7 @@ export default {
       const canvasDiv = document.getElementById('live-canvas')
 
       //获取画布组件上下文,实际绘制在这上面进行
-      const canvasCtx = canvasDiv.getContext('2d')
+      const canvasCtx = canvasDiv.getContext('2d', { willReadFrequently: true })
 
       this.start(videoDiv, canvasDiv, canvasCtx, newFps)
     }
@@ -93,7 +90,7 @@ export default {
 
   async mounted() {
     //DOM挂载后，加载摄像头
-    await this.recognize()
+    // await this.recognize()
   },
 
   beforeDestroy() {
@@ -105,6 +102,23 @@ export default {
   },
 
   methods: {
+    async startCam() {
+
+      this.recognize()
+    },
+
+    stopCam() {
+      if (this.interval) {
+        clearInterval(this.interval)
+      }
+      this.$store.dispatch('camera/stopCamera')
+
+      const canvasDiv = document.getElementById('live-canvas')
+
+      //获取画布组件上下文,实际绘制在这上面进行
+      const canvasCtx = canvasDiv.getContext('2d', { willReadFrequently: true })
+      canvasCtx.clearRect(0, 0, 320, 247)
+    },
     start(videoDiv, canvasDiv, canvasCtx, fps) {
       const self = this
       if (self.interval) {
@@ -155,7 +169,7 @@ export default {
         .then((stream) => {
           const videoDiv = document.getElementById('live-video')
           const canvasDiv = document.getElementById('live-canvas')
-          const canvasCtx = canvasDiv.getContext('2d')
+          const canvasCtx = canvasDiv.getContext('2d', { willReadFrequently: true })
           videoDiv.srcObject = stream
 
           self.start(videoDiv, canvasDiv, canvasCtx, self.fps)
