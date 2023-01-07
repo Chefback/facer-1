@@ -21,6 +21,7 @@
 
                     <v-card-actions>
                         <v-spacer></v-spacer>
+                        <v-btn :disabled="!valid" color="success" class="mr-4" @click="handleRegister">注册</v-btn>
                         <v-btn :disabled="!valid" color="success" class="mr-4" @click="handleSubmit">登录</v-btn>
                         <v-btn color="error" class="mr-4" @click="reset">重置</v-btn>
                     </v-card-actions>
@@ -44,6 +45,9 @@ export default {
         }
     },
     methods: {
+        handleRegister() {
+
+        },
         handleSubmit(name) {
 
             const user = JSON.parse(localStorage.getItem('user'));
