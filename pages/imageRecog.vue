@@ -3,7 +3,6 @@
     <v-flex>
       <h1>上传图片检测</h1>
     </v-flex>
-
     <v-snackbar v-model="imgalert">
       请上传图片
       <template v-slot:action="{ attrs }">
