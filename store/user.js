@@ -1,4 +1,3 @@
-import { list } from "pm2";
 
 export const state = () => ({
   list: [],
@@ -7,12 +6,12 @@ export const state = () => ({
 
 export const mutations = {
   setUsers(state, users) {
-    // let photo2map = users.reduce((acc, curr) => {
-    //   acc[curr.name] = curr
-    //   return acc;
-    // }, {});
-    // let combined = state.list.map(d => Object.assign(d, photo2map[d.name]));
-    state.list = users
+    let photo2map = users.reduce((acc, curr) => {
+      acc[curr.name] = curr
+      return acc;
+    }, {});
+    let combined = state.list.map(d => Object.assign(d, photo2map[d.name]));
+    state.list = combined
     state.fetched = true
   },
   addUser(state, user) {
