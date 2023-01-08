@@ -53,7 +53,7 @@
       </v-list>
     </v-flex>
     <v-flex>
-      <v-data-table :headers="headers" :items="users" sort-by="calories" class="elevation-1">
+      <v-data-table :headers="headers" :items="users" sort-by="calories" hide-default-footer class="elevation-1">
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title>管理员页面</v-toolbar-title>
@@ -116,7 +116,7 @@
           </v-icon>
         </template>
         <template v-slot:no-data>
-          <v-btn color="primary" @click="initialize">
+          <v-btn color="primary">
             Reset
           </v-btn>
         </template>
@@ -129,6 +129,7 @@
 export default {
   data() {
     return {
+      newdialog: false,
       dialog: false,
       dialogDelete: false,
       selectedUser: null,

@@ -17,6 +17,9 @@
         <v-icon v-html="miniVariant ? 'chevron_right' : 'chevron_left'" />
       </v-btn>
       <v-toolbar-title v-html="title" />
+      <v-flex>
+        <v-btn @click="logout">登出</v-btn>
+      </v-flex>
     </v-app-bar>
     <v-main>
       <v-container fluid>
@@ -40,7 +43,7 @@ export default {
       fixed: false,
       items: [
         { icon: 'home', title: '欢迎', to: '/' },
-        { icon: 'people', title: '管理页面', to: '/admin' },
+        { icon: 'manage_accounts', title: '管理页面', to: '/admin' },
         { icon: 'people', title: '人脸数据库', to: '/users' },
         { icon: 'wallpaper', title: '本地图片检测', to: '/imageRecog' },
         { icon: 'camera', title: '摄像头检测', to: '/camRecog' }
@@ -61,8 +64,14 @@ export default {
   async mounted() {
     const self = this
 
-    self.$store.state.list = JSON.parse(window.localStorage.getItem('userlist'))
+    const userlist = JSON.parse(window.localStorage.getItem('userlist'))
+    await self.$store.commit('user/addUserList', userlist)
     await self.$store.dispatch('face/load')
+  },
+  methods: {
+    logout() {
+      this.$router.push({ path: `/login` })
+    },
   }
 }
 </script>

@@ -5,7 +5,7 @@
     </v-flex>
     <v-flex xs12>
       <v-card>
-        <v-card-actions class="justify-center">
+        <!-- <v-card-actions class="justify-center">
           <v-btn-toggle v-model="withOptions" multiple>
             <v-btn>
               <v-icon>check_box_outline_blank</v-icon>
@@ -16,7 +16,7 @@
               <span>Recognition</span>
             </v-btn>
           </v-btn-toggle>
-        </v-card-actions>
+        </v-card-actions> -->
         <v-slider v-model="fps" :max="60" :min="1" :step="1" label="Desired FPS" prepend-icon="local_movies"
           thumb-label="always" ticks />
         <p>
@@ -84,6 +84,7 @@ export default {
     //挂载前先从服务器获取脸部特征文件，再从特征文件中提取描述器作为匹配器的已知参数
     const self = this
     await self.$store.dispatch('face/getAll')
+      .then(() => self.$store.dispatch('face/getMaskModel'))
       .then(() => self.$store.dispatch('face/getFaceMatcher'))
   },
 
@@ -116,7 +117,10 @@ export default {
       //获取画布组件上下文,实际绘制在这上面进行
       const canvasCtx = canvasDiv.getContext('2d', { willReadFrequently: true })
       canvasCtx.clearRect(0, 0, 320, 247)
+      this.realFps = 0;
+      this.duration = 0
     },
+
     start(videoDiv, canvasDiv, canvasCtx, fps) {
       const self = this
       if (self.interval) {
@@ -127,14 +131,18 @@ export default {
         //将video组件绘制到canva上
         canvasCtx.drawImage(videoDiv, 0, 0, 320, 247)
         const options = {
-          detectionsEnabled: self.withOptions.find(o => o === 0) === 0,
-          descriptorsEnabled: self.withOptions.find(o => o === 2) === 2,
+          detectionsEnabled: true,
+          descriptorsEnabled: true,
         }
         //从视频流中检测人脸
-        const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options })
+        const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options });
         // const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
-        // console.log(maskDetections);
-        // console.log(detections);
+        const maskDetections = await self.$store.dispatch('face/classify', { canvas: canvasDiv });
+        console.log(maskDetections);
+        // {
+        //     "className": "Mask",
+        //     "probability": 0.0063973600044846535
+        // }
 
         if (detections.length) {
           detections.forEach(async (detection) => {

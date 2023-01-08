@@ -62,7 +62,6 @@ export const actions = {
         faceapi.nets.faceLandmark68TinyNet.loadFromUri('/data/models'),
         faceapi.nets.tinyFaceDetector.loadFromUri('/data/models'),
         // faceapi.nets.tinyYolov2.loadFromUri('/data/models'),
-        faceapi.nets.ssdMobilenetv1.loadFromUri('/data/models')
       ])
         .then(() => {
           commit('load')
@@ -111,20 +110,20 @@ export const actions = {
 
   async getFaceDetections({ commit, state }, { canvas, options }) {
     //从视频流中检测人脸，选择TinyYolov2作为检测算法
-    let detections = await faceapi
+    let detections = faceapi
       .detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions({
         scoreThreshold: state.detections.scoreThreshold,
         inputSize: state.detections.inputSize
-      })).withFaceLandmarks(state.useTiny).withFaceDescriptors
-
+      })).withFaceLandmarks(true).withFaceDescriptors()
 
     // detections = detections.    if (options && options.descriptorsEnabled) {
     //   detections = detections.withFaceDescriptors()
     // }
+    detections = await detections
     return detections
   },
 
-  async getMaskModel({ commit, state }, { canvas }) {
+  async getMaskModel({ commit }) {
 
     const customModel = await tf.loadLayersModel('../data/model.json')
     const model = new CustomMobileNet(customModel, metadataJSON);
@@ -150,8 +149,7 @@ export const actions = {
 
     let name = ''
     if (options.descriptorsEnabled && detection.recognition) {
-      // name = detection.recognition.toString(state.descriptors.withDistance)
-      name = detection.recognition.toString()
+      name = detection.recognition.toString(state.descriptors.withDistance)
     }
 
     let maskon = ''
@@ -163,7 +161,7 @@ export const actions = {
       }
     }
 
-    const text = `${name}${emotions ? (name ? ' is ' : '') : ''}${emotions}${maskon}`
+    const text = `${name}${name ? '' : '未知人员'}${maskon}`
     const box = detection.box || detection.detection.box
     if (options.detectionsEnabled && box) {
       // draw box

@@ -18,10 +18,10 @@
           <input id="fileUpload" @change="filesChange($event)" type="file" name="fileUpload">
         </form>
       </v-card>
-      <v-btn @click="start()" class="mb-2" color="primary" dark>检测</v-btn>
+      <v-btn @click="startTest()" class="mb-2" color="primary" dark>检测</v-btn>
     </v-flex>
     <v-flex xs12 md6>
-      <img :id="faceImg" :src="faceImg" width="320" height="247">
+      <img id="upload-img" :src="faceImg" width="320" height="247">
       <v-btn @click="clear" class="mb-2" small color="primary" dark>
         清除</v-btn>
     </v-flex>
@@ -35,6 +35,7 @@
 export default {
   data() {
     return {
+      interval: null,
       faceImg: null,
       imgalert: null
     }
@@ -73,25 +74,39 @@ export default {
 
     },
     clear() {
+      if (self.interval) {
+        clearInterval(self.interval)
+      }
+      const canvasDiv = document.getElementById('live-canvas')
+      const canvasCtx = canvasDiv.getContext('2d')
+      canvasCtx.clearRect(0, 0, 320, 247)
       this.faceImg = null
+
     },
-    start(videoDiv, canvasDiv, canvasCtx, fps) {
+    async startTest(canvas) {
+      const self = this;
+
+      const imgDiv = document.getElementById('upload-img')
+      const canvasDiv = document.getElementById('live-canvas')
+      const canvasCtx = canvasDiv.getContext('2d')
+      self.start(imgDiv, canvasDiv, canvasCtx)
+    },
+    start(videoDiv, canvasDiv, canvasCtx) {
       if (this.faceImg) {
         const self = this
         if (self.interval) {
           clearInterval(self.interval)
         }
         self.interval = setInterval(async () => {
-          const t0 = performance.now()
           //将video组件绘制到canva上
           canvasCtx.drawImage(videoDiv, 0, 0, 320, 247)
           const options = {
-            detectionsEnabled: self.withOptions.find(o => o === 0) === 0,
-            descriptorsEnabled: self.withOptions.find(o => o === 2) === 2,
+            detectionsEnabled: true,
+            descriptorsEnabled: true,
           }
           //从视频流中检测人脸
           const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options })
-          const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
+          // const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
           // console.log(maskDetections);
           // console.log(detections);
 
@@ -103,22 +118,19 @@ export default {
                 options
               }),
                 //添加口罩识别项
-                detection.maskdetect = await maskDetections
-              // console.log(detection, '检测结果')
-              //画出识别结果
-              self.$store.dispatch('face/draw',
-                {
-                  canvasDiv,
-                  canvasCtx,
-                  detection,
-                  options
-                })
+                // detection.maskdetect = await maskDetections
+                // console.log(detection, '检测结果')
+                //画出识别结果
+                self.$store.dispatch('face/draw',
+                  {
+                    canvasDiv,
+                    canvasCtx,
+                    detection,
+                    options
+                  })
             })
           }
-          const t1 = performance.now()
-          self.duration = (t1 - t0).toFixed(2)
-          self.realFps = (1000 / (t1 - t0)).toFixed(2)
-        }, 1000 / fps)
+        }, 1000)
       } else {
         this.imgalert = true
       }

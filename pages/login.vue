@@ -3,10 +3,10 @@
     <v-layout align-center justify-center>
         <v-flex xs12 sm8 md4>
             <v-snackbar v-model="alert">
-                帐号或密码错误
+                {{ noinputalert?'请输入密码': '帐号或密码错误' }}
                 <template v-slot:action="{ attrs }">
                     <v-btn color="red" text v-bind="attrs" @click="alert = false">
-                        关闭
+                        点击关闭
                     </v-btn>
                 </template>
             </v-snackbar>
@@ -38,6 +38,8 @@ export default {
     data() {
         return {
             alert: null,
+            noinputalert: null,
+            valid: true,
             formLogin: {
                 username: '',
                 password: '',
@@ -48,7 +50,7 @@ export default {
         handleRegister() {
 
         },
-        handleSubmit(name) {
+        handleSubmit() {
 
             const user = JSON.parse(localStorage.getItem('user'));
             localStorage.setItem('input', JSON.stringify(this.formLogin))
@@ -58,7 +60,8 @@ export default {
                 this.$router.push({
                     path: `/`
                 })
-            } else {
+            }
+            else {
                 this.alert = true
             }
         },

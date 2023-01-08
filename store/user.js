@@ -1,21 +1,23 @@
 
 export const state = () => ({
   list: [],
+  adminlist: [],
+  userlist: [],
   fetched: false
 })
 
 export const mutations = {
   setUsers(state, users) {
-    let photo2map = users.reduce((acc, curr) => {
-      acc[curr.name] = curr
-      return acc;
-    }, {});
-    let combined = state.list.map(d => Object.assign(d, photo2map[d.name]));
-    state.list = combined
+    state.list = users
     state.fetched = true
   },
   addUser(state, user) {
     state.list.push(user)
+    state.userlist.push(user)
+  },
+
+  addUserList(state, user) {
+    state.userlist.push(user)
   },
   removeUser(state, name) {
     for (let i = 0; i < state.list.length; i++) {
@@ -53,6 +55,7 @@ export const mutations = {
 export const actions = {
   async getAll({ commit }) {
     const data = await this.$axios.$get('/api/user/getAll')
+    console.log(data)
     commit('setUsers', data)
     return data
   },

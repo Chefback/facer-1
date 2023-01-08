@@ -58,7 +58,15 @@
           <v-toolbar flat>
             <v-toolbar-title>人脸信息管理</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
-            <v-btn color="primary" dark class="mb-2">训练模型</v-btn>
+            <v-btn color="primary" dark class="mb-2" @click="train">训练模型</v-btn>
+            <v-snackbar v-model="trainalert">
+              {{ failalert?'训练失败': '训练成功' }}
+              <template v-slot:action="{ attrs }">
+                <v-btn color="red" text v-bind="attrs" @click="trainalert = false">
+                  点击关闭
+                </v-btn>
+              </template>
+            </v-snackbar>
             <v-spacer></v-spacer>
             <v-dialog v-model="newdialog" max-width="500px">
 
@@ -118,7 +126,7 @@
           </v-toolbar>
         </template>
         <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="editItem(item)">
+          <v-icon small class="mr-2" :to="'/users/' + item.name">
             mdi-pencil
           </v-icon>
           <v-icon small @click="deleteItem(item)">
@@ -126,7 +134,7 @@
           </v-icon>
         </template>
         <template v-slot:no-data>
-          <v-btn color="primary" @click="initialize">
+          <v-btn color="primary">
             Reset
           </v-btn>
         </template>
@@ -139,11 +147,14 @@
 export default {
   data() {
     return {
+      newdialog: false,
       dialog: false,
       dialogDelete: false,
       selectedUser: null,
       valid: true,
-      name: null,
+      //警告
+      trainalert: null,
+      failalert: null,
       user: {
         id: null,
         name: null,
@@ -152,7 +163,6 @@ export default {
         photos: null,
         createdAt: null
       },
-      userlist: [],
       nameRules: [
         v => !!v || 'Full name is required',
         v => (v && v.length > 1) || '请输入两个字以上的名字'
@@ -194,8 +204,15 @@ export default {
 
   computed: {
     users() {
-      console.log(this.$store.state.user.list)
-      return this.$store.state.user.list
+      let user = this.$store.state.user.list
+      let userlist = this.$store.state.user.userlist
+      let photo2map = user.reduce((acc, curr) => {
+        acc[curr.name] = curr
+        return acc;
+      }, {});
+      let combined = userlist.map(d => Object.assign(d, photo2map[d.name]));
+      console.log(combined)
+      return combined
     },
     formTitle() {
       return this.editedIndex === -1 ? '新用户' : '修改用户'
@@ -214,12 +231,49 @@ export default {
   },
 
   methods: {
+    async train() {
+      const self = this
+      const faces = []
+      await Promise.all(self.users.map(async (user) => {
+        const descriptors = []
+        await Promise.all(user.photos.map(async (photo, index) => {
+          const photoId = `${user.name}${index}`
+          const img = document.getElementById(photoId)
+          const options = {
+            detectionsEnabled: true,
+            descriptorsEnabled: true,
+          }
+          //检测注册用户的人脸数据
+          const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: img, options })
+          detections.forEach((d) => {
+            descriptors.push({
+              path: photo,
+              descriptor: d.descriptor
+            })
+          })
+        }))
+        faces.push({
+          user: user.name,
+          descriptors
+        })
+      }))
+      await self.$store.dispatch('face/save', faces)
+        .then(() => {
+          self.trainalert = true
+          self.failalert = null
+        })
+        .catch((e) => {
+          self.trainalert = self.failalert = true
+          console.error(e)
+        })
+    },
     editItem(item) {
       this.editedIndex = this.userlist.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.newdialog = true
     },
     deleteItem(item) {
+      console.log(item)
       this.editedIndex = this.userlist.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
@@ -245,23 +299,23 @@ export default {
         this.editedIndex = -1
       })
     },
-    save() {
-      if (this.editedIndex > -1) {
-        Object.assign(this.userlist[this.editedIndex], this.editedItem)
-      } else {
-        this.userlist.push(this.editedItem)
-      }
+    // save() {
+    //   if (this.editedIndex > -1) {
+    //     Object.assign(this.userlist[this.editedIndex], this.editedItem)
+    //   } else {
+    //     this.userlist.push(this.editedItem)
+    //   }
 
-      const self = this
-      if (this.$refs.newuser.validate()) {
-        console.log('yes')
-        return this.$store.dispatch('user/register', this.user.name)
-          .then(() => {
-            return self.$router.push({ path: `/users/${self.user.name}` })
-          })
-      }
-      this.close()
-    },
+    //   const self = this
+    //   if (this.$refs.newuser.validate()) {
+    //     console.log('yes')
+    //     return this.$store.dispatch('user/register', this.user.name)
+    //       .then(() => {
+    //         return self.$router.push({ path: `/users/${self.user.name}` })
+    //       })
+    //   }
+    //   this.close()
+    // },
     register() {
       const self = this
       if (this.$refs.newuser.validate()) {
@@ -271,8 +325,9 @@ export default {
         console.log('yes')
         return this.$store.dispatch('user/register', this.user)
           .then(() => {
-            localStorage.setItem('userlist',
-              JSON.stringify(self.$store.state.list))
+            // localStorage.setItem('userlist',
+            //   JSON.stringify(self.$store.state.user.userlist))
+            self.close()
             return self.$router.push({ path: `/users/${self.user.name}` })
           })
       }
