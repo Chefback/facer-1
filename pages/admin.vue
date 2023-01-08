@@ -98,7 +98,9 @@ export default {
   computed: {
     admins() {
       console.log(this.$store.state.user.adminlist)
-      return this.$store.state.user.adminlist
+      let admins = this.$store.state.user.adminlist
+      localStorage.setItem('adminlist',)
+      return admins
     },
     formTitle() {
       return this.editedIndex === -1 ? '新管理员' : '修改信息'
@@ -145,7 +147,6 @@ export default {
       const now = Date.now()
       this.admin.createdAt = new Date(now).toUTCString()
 
-      console.log('yes')
       this.$store.commit('user/addAdmin', this.admin)
       this.close()
       // localStorage.setItem('userlist',
