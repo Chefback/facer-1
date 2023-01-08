@@ -58,9 +58,11 @@ export const actions = {
     if (!state.loading && !state.loaded) {
       commit('loading')
       return Promise.all([
-        faceapi.loadFaceRecognitionModel('/data/models'),
-        faceapi.loadFaceLandmarkModel('/data/models'),
-        faceapi.loadTinyFaceDetectorModel('/data/models'),
+        faceapi.nets.faceRecognitionNet.loadFromUri('/data/models'),
+        faceapi.nets.faceLandmark68TinyNet.loadFromUri('/data/models'),
+        faceapi.nets.tinyFaceDetector.loadFromUri('/data/models'),
+        // faceapi.nets.tinyYolov2.loadFromUri('/data/models'),
+        faceapi.nets.ssdMobilenetv1.loadFromUri('/data/models')
       ])
         .then(() => {
           commit('load')
@@ -109,17 +111,16 @@ export const actions = {
 
   async getFaceDetections({ commit, state }, { canvas, options }) {
     //从视频流中检测人脸，选择TinyYolov2作为检测算法
-    let detections = faceapi
+    let detections = await faceapi
       .detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions({
         scoreThreshold: state.detections.scoreThreshold,
         inputSize: state.detections.inputSize
-      }))
+      })).withFaceLandmarks(state.useTiny).withFaceDescriptors
 
-    detections = detections.withFaceLandmarks(state.useTiny)
-    if (options && options.descriptorsEnabled) {
-      detections = detections.withFaceDescriptors()
-    }
-    detections = await detections
+
+    // detections = detections.    if (options && options.descriptorsEnabled) {
+    //   detections = detections.withFaceDescriptors()
+    // }
     return detections
   },
 

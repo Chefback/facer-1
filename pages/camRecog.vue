@@ -55,7 +55,6 @@ export default {
       counter: 0,
       progress: 0,
       duration: 0,
-      isProgressActive: true,
       recognition: '',
       withOptions: [0, 1, 2, 3]
     }
@@ -103,7 +102,6 @@ export default {
 
   methods: {
     async startCam() {
-
       this.recognize()
     },
 
@@ -146,16 +144,16 @@ export default {
               options
             }),
               //添加口罩识别项
-              detection.maskdetect = await maskDetections
-            // console.log(detection, '检测结果')
-            //画出识别结果
-            self.$store.dispatch('face/draw',
-              {
-                canvasDiv,
-                canvasCtx,
-                detection,
-                options
-              })
+              // detection.maskdetect = await maskDetections
+              // console.log(detection, '检测结果')
+              //画出识别结果
+              self.$store.dispatch('face/draw',
+                {
+                  canvasDiv,
+                  canvasCtx,
+                  detection,
+                  options
+                })
           })
         }
         const t1 = performance.now()
