@@ -1,59 +1,7 @@
 <template>
   <v-layout row wrap>
-    <v-flex xs12>
-      <v-card>
-        <v-dialog v-model="dialog" persistent max-width="320">
-          <v-card>
-            <v-card-title class="headline">警告！</v-card-title>
-            <v-card-text>确定删除用户{{ selectedUser }}吗？</v-card-text>
-            <v-card-actions>
-              <v-spacer />
-              <v-btn @click="hideDialog()" color="green darken-1" flat>取消</v-btn>
-              <v-btn @click="deleteUpload()" color="green darken-1" flat>确定</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-card>
-    </v-flex>
-    <v-flex xs12>
-      <v-list two-line subheader>
-        <v-list-item v-for="user in users" :key="user.name">
-          <v-list-item-avatar>
-            <v-avatar slot="activator" size="32px">
-              <img v-if="user.photos.length" :src="user.photos[0]" alt="Avatar">
-              <v-icon v-else color="primary">
-                person
-              </v-icon>
-            </v-avatar>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-subtitle>
-              {{ user.name }}
-              <v-divider />
-            </v-list-item-subtitle>
-          </v-list-item-content>
-
-          <v-list-item-action>
-            <v-btn :to="'/users/' + user.name" color="primary" fab small>
-              <v-icon>
-                add_a_photo
-              </v-icon>
-            </v-btn>
-            <v-divider />
-          </v-list-item-action>
-          <v-list-item-action>
-            <v-btn @click="showDialog(user.name)" color="primary" fab small>
-              <v-icon>
-                close
-              </v-icon>
-            </v-btn>
-            <v-divider />
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-flex>
     <v-flex>
-      <v-data-table :headers="headers" :items="users" sort-by="calories" hide-default-footer class="elevation-1">
+      <v-data-table :headers="headers" :items="admins" sort-by="calories" hide-default-footer class="elevation-1">
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title>管理员页面</v-toolbar-title>
@@ -115,11 +63,11 @@
             mdi-delete
           </v-icon>
         </template>
-        <template v-slot:no-data>
+        <!-- <template v-slot:no-data>
           <v-btn color="primary">
             Reset
           </v-btn>
-        </template>
+        </template> -->
       </v-data-table>
     </v-flex>
   </v-layout>
@@ -180,12 +128,12 @@ export default {
   },
 
   computed: {
-    users() {
-      console.log(this.$store.state.user.list)
-      return this.$store.state.user.list
+    admins() {
+      console.log(this.$store.state.user.adminlist)
+      return this.$store.state.user.adminlist
     },
     formTitle() {
-      return this.editedIndex === -1 ? '新用户' : '修改用户'
+      return this.editedIndex === -1 ? '新管理员' : '修改信息'
     },
   },
   watch: {
@@ -232,30 +180,13 @@ export default {
         this.editedIndex = -1
       })
     },
-    save() {
-      if (this.editedIndex > -1) {
-        Object.assign(this.userlist[this.editedIndex], this.editedItem)
-      } else {
-        this.userlist.push(this.editedItem)
-      }
-
-      const self = this
-      if (this.$refs.newuser.validate()) {
-        console.log('yes')
-        return this.$store.dispatch('user/register', this.user.name)
-          .then(() => {
-            return self.$router.push({ path: `/users/${self.user.name}` })
-          })
-      }
-      this.close()
-    },
     register() {
       const self = this
       if (this.$refs.newuser.validate()) {
         this.user.createdAt = Date.now()
 
         console.log('yes')
-        return this.$store.dispatch('user/register', this.user)
+        return this.$store.commit('user/setAdmins', this.admin)
           .then(() => {
             // localStorage.setItem('userlist',
             //   JSON.stringify(self.$store.state.list))
@@ -274,13 +205,6 @@ export default {
       this.selectedUser = null
     },
 
-    async deleteUpload() {
-      if (this.selectedUser) {
-        await this.$store.dispatch('user/delete', this.selectedUser)
-        this.selectedUser = null
-        this.dialog = false
-      }
-    }
   }
 }
 </script>

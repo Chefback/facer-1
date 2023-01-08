@@ -3,11 +3,24 @@ export const state = () => ({
   list: [],
   adminlist: [],
   userlist: [],
-  fetched: false
+  combinedlist: [],
+  fetched: false,
+  count: 1
 })
 
 export const mutations = {
+  loadCombined(state) {
+    let user = state.list
+    let userlist = state.userlist
+    let photo2map = user.reduce((acc, curr) => {
+      acc[curr.name] = curr
+      return acc;
+    }, {});
+    let combined = user && userlist ? userlist.map(d => Object.assign(d, photo2map[d.name])) : [];
+    state.combinedlist = combined
+  },
   setUsers(state, users) {
+    //set server data
     state.list = users
     state.fetched = true
   },
@@ -16,8 +29,16 @@ export const mutations = {
     state.userlist.push(user)
   },
 
-  addUserList(state, user) {
-    state.userlist.push(user)
+  setAdmins(state, users) {
+
+    state.adminlist = users ? Array.from(users) : []
+  },
+  addAdmin(state, user) {
+    state.adminlist.push(user)
+    console.log(state.adminlist)
+  },
+  clearaddUserList(state, user) {
+    state.userlist = user ? Array.from(user) : []
   },
   removeUser(state, name) {
     for (let i = 0; i < state.list.length; i++) {
@@ -55,7 +76,7 @@ export const mutations = {
 export const actions = {
   async getAll({ commit }) {
     const data = await this.$axios.$get('/api/user/getAll')
-    console.log(data)
+    console.log('serverdata', data)
     commit('setUsers', data)
     return data
   },

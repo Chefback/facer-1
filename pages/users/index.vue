@@ -53,7 +53,7 @@
       </v-list>
     </v-flex> -->
     <v-flex>
-      <v-data-table :headers="headers" :items="users" sort-by="calories" hide-default-footer class="elevation-1">
+      <v-data-table :headers="headers" :items="users" sort-by="id" hide-default-footer class="elevation-1">
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title>人脸信息管理</v-toolbar-title>
@@ -73,20 +73,21 @@
               <template v-slot:activator="{ on, attrs }">
                 <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">添加新用户</v-btn>
               </template>
-              <v-form ref="newuser" v-model="valid" lazy-validation>
-                <v-card>
-                  <v-card-title>
-                    <span class="text-h5">{{ formTitle }}</span>
-                  </v-card-title>
 
-                  <v-card-text>
+              <v-card>
+                <v-card-title>
+                  <span class="text-h5">{{ formTitle }}</span>
+                </v-card-title>
+
+                <v-card-text>
+                  <v-form ref="form" lazy-validation>
                     <v-container>
                       <v-row>
                         <v-col cols="12" sm="6" md="4">
-                          <v-text-field v-model="user.id" label="用户ID"></v-text-field>
+                          <v-text-field v-model="user.id" :rules="nameRules" label="用户ID"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
-                          <v-text-field v-model="user.name" label="用户名"></v-text-field>
+                          <v-text-field v-model="user.name" :rules="nameRules" label="用户名"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="4">
                           <v-text-field v-model="user.phone" label="电话号码"></v-text-field>
@@ -96,15 +97,15 @@
                         </v-col>
                       </v-row>
                     </v-container>
-                  </v-card-text>
+                  </v-form>
+                </v-card-text>
 
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="blue darken-1" text @click="register">保存</v-btn>
-                    <v-btn color="blue darken-1" text @click="close">取消</v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-form>
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <v-btn color="blue darken-1" text @click="register">保存</v-btn>
+                  <v-btn color="blue darken-1" text @click="close">取消</v-btn>
+                </v-card-actions>
+              </v-card>
             </v-dialog>
             <v-dialog v-model="dialogDelete" max-width="500px">
               <v-card>
@@ -112,8 +113,8 @@
                 <v-card-text>确定删除用户{{ selectedUser }}吗？</v-card-text>
                 <v-card-actions>
                   <v-spacer />
-                  <v-btn @click="closeDelete()" color="green darken-1" flat>取消</v-btn>
-                  <v-btn @click="deleteItemConfirm()" color="green darken-1" flat>确定</v-btn>
+                  <v-btn @click="closeDelete()" color="green darken-1" text>取消</v-btn>
+                  <v-btn @click="deleteItemConfirm()" color="green darken-1" text>确定</v-btn>
                 </v-card-actions>
                 <!-- <v-card-actions>
                   <v-spacer></v-spacer>
@@ -125,6 +126,7 @@
             </v-dialog>
           </v-toolbar>
         </template>
+
         <template v-slot:item.actions="{ item }">
           <v-icon small class="mr-2" :to="'/users/' + item.name">
             mdi-pencil
@@ -132,11 +134,6 @@
           <v-icon small @click="deleteItem(item)">
             mdi-delete
           </v-icon>
-        </template>
-        <template v-slot:no-data>
-          <v-btn color="primary">
-            Reset
-          </v-btn>
         </template>
       </v-data-table>
     </v-flex>
@@ -151,7 +148,6 @@ export default {
       dialog: false,
       dialogDelete: false,
       selectedUser: null,
-      valid: true,
       //警告
       trainalert: null,
       failalert: null,
@@ -172,7 +168,6 @@ export default {
         {
           text: '用户ID',
           align: 'start',
-          sortable: false,
           value: 'id',
         },
         { text: '用户名', value: 'name' },
@@ -204,15 +199,10 @@ export default {
 
   computed: {
     users() {
-      let user = this.$store.state.user.list
-      let userlist = this.$store.state.user.userlist
-      let photo2map = user.reduce((acc, curr) => {
-        acc[curr.name] = curr
-        return acc;
-      }, {});
-      let combined = userlist.map(d => Object.assign(d, photo2map[d.name]));
-      console.log(combined)
-      return combined
+
+      console.log(this.$store.state.user.combinedlist)
+
+      return this.$store.state.user.list
     },
     formTitle() {
       return this.editedIndex === -1 ? '新用户' : '修改用户'
@@ -236,9 +226,11 @@ export default {
       const faces = []
       await Promise.all(self.users.map(async (user) => {
         const descriptors = []
-        await Promise.all(user.photos.map(async (photo, index) => {
-          const photoId = `${user.name}${index}`
-          const img = document.getElementById(photoId)
+        console.log(user)
+        await Promise.all(user.photos.map(async (photo) => {
+          const img = new Image()
+          img.src = photo
+          console.log(img)
           const options = {
             detectionsEnabled: true,
             descriptorsEnabled: true,
@@ -263,30 +255,32 @@ export default {
           self.failalert = null
         })
         .catch((e) => {
-          self.trainalert = self.failalert = true
+          self.trainalert = true
+          self.failalert = true
           console.error(e)
         })
     },
     editItem(item) {
-      this.editedIndex = this.userlist.indexOf(item)
+      this.editedIndex = this.users.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.newdialog = true
     },
     deleteItem(item) {
       console.log(item)
-      this.editedIndex = this.userlist.indexOf(item)
+      this.editedIndex = this.users.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
       // this.dialog = true
       this.selectedUser = item.name
     },
     deleteItemConfirm() {
-      this.userlist.splice(this.editedIndex, 1)
+      this.deleteUpload()
+      // this.users.splice(this.editedIndex, 1)
       this.closeDelete()
     },
     close() {
       this.newdialog = false
-      this.$refs.newuser.reset()
+      this.$refs.form.reset()
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -318,13 +312,14 @@ export default {
     // },
     register() {
       const self = this
-      if (this.$refs.newuser.validate()) {
+      if (this.$refs.form.validate()) {
+
         const now = Date.now()
         this.user.createdAt = new Date(now).toUTCString()
 
-        console.log('yes')
         return this.$store.dispatch('user/register', this.user)
           .then(() => {
+
             // localStorage.setItem('userlist',
             //   JSON.stringify(self.$store.state.user.userlist))
             self.close()

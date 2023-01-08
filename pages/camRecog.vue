@@ -138,7 +138,7 @@ export default {
         const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options });
         // const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
         const maskDetections = await self.$store.dispatch('face/classify', { canvas: canvasDiv });
-        console.log(maskDetections);
+        // console.log(maskDetections);
         // {
         //     "className": "Mask",
         //     "probability": 0.0063973600044846535

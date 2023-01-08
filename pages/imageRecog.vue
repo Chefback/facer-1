@@ -13,17 +13,15 @@
     </v-snackbar>
     <v-flex>
       <v-card flat>
-        <form method="POST" class="form-documents" enctype="multipart/form-data">
-          上传图片
-          <input id="fileUpload" @change="filesChange($event)" type="file" name="fileUpload">
-        </form>
+        上传图片
+        <input id="fileUpload" @change="filesChange($event)" type="file" name="fileUpload">
       </v-card>
       <v-btn @click="startTest()" class="mb-2" color="primary" dark>检测</v-btn>
+      <v-btn @click="clear" class="mb-2" color="primary" dark>
+        清除</v-btn>
     </v-flex>
     <v-flex xs12 md6>
       <img id="upload-img" :src="faceImg" width="320" height="247">
-      <v-btn @click="clear" class="mb-2" small color="primary" dark>
-        清除</v-btn>
     </v-flex>
     <v-flex xs12 md6>
       <canvas id="live-canvas" width="320" height="247" />
@@ -40,11 +38,7 @@ export default {
       imgalert: null
     }
   },
-  computed: {
-  },
 
-  watch: {
-  },
 
 
   async beforeMount() {
@@ -58,6 +52,7 @@ export default {
   },
 
   beforeDestroy() {
+    this.clear()
   },
 
   methods: {
@@ -77,10 +72,12 @@ export default {
       if (self.interval) {
         clearInterval(self.interval)
       }
+      const file = document.getElementById('fileUpload')
       const canvasDiv = document.getElementById('live-canvas')
       const canvasCtx = canvasDiv.getContext('2d')
       canvasCtx.clearRect(0, 0, 320, 247)
       this.faceImg = null
+      file.value = ''
 
     },
     async startTest(canvas) {
