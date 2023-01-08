@@ -24,9 +24,15 @@ export const mutations = {
     state.list = users
     state.fetched = true
   },
-  addUser(state, user) {
-    state.list.push(user)
-    state.userlist.push(user)
+  setDetail(state, users) {
+    //set server data
+    state.userlist.push(users)
+  },
+  addUser(state, name) {
+    state.list.push({
+      name,
+      photos: []
+    })
   },
 
   setAdmins(state, users) {
@@ -80,9 +86,9 @@ export const actions = {
     commit('setUsers', data)
     return data
   },
-  async register({ commit }, user) {
-    await this.$axios.$post('/api/user/register', { user })
-    commit('addUser', user)
+  async register({ commit }, name) {
+    await this.$axios.$post('/api/user/register', { name })
+    commit('addUser', name)
   },
   async delete({ commit }, name) {
     await this.$axios.$post('/api/user/delete', { name })

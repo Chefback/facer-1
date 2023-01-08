@@ -1,57 +1,5 @@
 <template>
   <v-layout row wrap>
-    <!-- <v-flex xs12>
-      <v-card>
-        <v-dialog v-model="dialog" persistent max-width="320">
-          <v-card>
-            <v-card-title class="headline">警告！</v-card-title>
-            <v-card-text>确定删除用户{{ selectedUser }}吗？</v-card-text>
-            <v-card-actions>
-              <v-spacer />
-              <v-btn @click="hideDialog()" color="green darken-1" flat>取消</v-btn>
-              <v-btn @click="deleteUpload()" color="green darken-1" flat>确定</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </v-card>
-    </v-flex>
-    <v-flex xs12>
-      <v-list two-line subheader>
-        <v-list-item v-for="user in users" :key="user.name">
-          <v-list-item-avatar>
-            <v-avatar slot="activator" size="32px">
-              <img v-if="user.photos.length" :src="user.photos[0]" alt="Avatar">
-              <v-icon v-else color="primary">
-                person
-              </v-icon>
-            </v-avatar>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-subtitle>
-              {{ user.name }}
-              <v-divider />
-            </v-list-item-subtitle>
-          </v-list-item-content>
-
-          <v-list-item-action>
-            <v-btn :to="'/users/' + user.name" color="primary" fab small>
-              <v-icon>
-                add_a_photo
-              </v-icon>
-            </v-btn>
-            <v-divider />
-          </v-list-item-action>
-          <v-list-item-action>
-            <v-btn @click="showDialog(user.name)" color="primary" fab small>
-              <v-icon>
-                close
-              </v-icon>
-            </v-btn>
-            <v-divider />
-          </v-list-item-action>
-        </v-list-item>
-      </v-list>
-    </v-flex> -->
     <v-flex>
       <v-data-table :headers="headers" :items="users" sort-by="id" hide-default-footer class="elevation-1">
         <template v-slot:top>
@@ -80,24 +28,22 @@
                 </v-card-title>
 
                 <v-card-text>
-                  <v-form ref="form" lazy-validation>
-                    <v-container>
-                      <v-row>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field v-model="user.id" :rules="nameRules" label="用户ID"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field v-model="user.name" :rules="nameRules" label="用户名"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-text-field v-model="user.phone" label="电话号码"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="4">
-                          <v-select v-model="user.sex" :items="sex" label=" 性别" solo></v-select>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-form>
+                  <v-container>
+                    <v-row>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field v-model="user.id" :rules="nameRules" label="用户ID"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field v-model="user.name" :rules="nameRules" label="用户名"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-text-field v-model="user.phone" label="电话号码"></v-text-field>
+                      </v-col>
+                      <v-col cols="12" sm="6" md="4">
+                        <v-select v-model="user.sex" :items="sex" label=" 性别" solo></v-select>
+                      </v-col>
+                    </v-row>
+                  </v-container>
                 </v-card-text>
 
                 <v-card-actions>
@@ -126,14 +72,22 @@
             </v-dialog>
           </v-toolbar>
         </template>
-
+        <template v-slot:item.photos="{ item }">
+          <div v-for="(photo, index) in item.photos" :key="index">
+            <img :src="photo" style="width: 50px; height: 50px" />
+          </div>
+        </template>
         <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" :to="'/users/' + item.name">
-            mdi-pencil
-          </v-icon>
-          <v-icon small @click="deleteItem(item)">
-            mdi-delete
-          </v-icon>
+          <v-btn :to="'/users/' + item.name">
+            <v-icon class="mr-2">
+              mdi-pencil
+            </v-icon>
+          </v-btn>
+          <v-btn @click="deleteItem(item)">
+            <v-icon small>
+              mdi-delete
+            </v-icon>
+          </v-btn>
         </template>
       </v-data-table>
     </v-flex>
@@ -152,11 +106,11 @@ export default {
       trainalert: null,
       failalert: null,
       user: {
-        id: null,
-        name: null,
+        id: '',
+        name: '',
         phone: null,
-        sex: null,
-        photos: null,
+        sex: '',
+        photos: [],
         createdAt: null
       },
       nameRules: [
@@ -199,10 +153,23 @@ export default {
 
   computed: {
     users() {
+      let arr1 = this.$store.state.user.list
+      let arr2 = this.$store.state.user.userlist
+      let merged = []
+      for (let i = 0; i < arr1.length; i++) {
+        merged.push({
+          ...arr1[i],
+          ...(arr2.find((itmInner) => itmInner.name === arr1[i].name))
+        }
+        );
+      }
 
-      console.log(this.$store.state.user.combinedlist)
+      console.log('merge', merged)
 
-      return this.$store.state.user.list
+
+      console.log('userold', arr1)
+      console.log('user', arr2)
+      return merged
     },
     formTitle() {
       return this.editedIndex === -1 ? '新用户' : '修改用户'
@@ -280,7 +247,6 @@ export default {
     },
     close() {
       this.newdialog = false
-      this.$refs.form.reset()
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -293,39 +259,22 @@ export default {
         this.editedIndex = -1
       })
     },
-    // save() {
-    //   if (this.editedIndex > -1) {
-    //     Object.assign(this.userlist[this.editedIndex], this.editedItem)
-    //   } else {
-    //     this.userlist.push(this.editedItem)
-    //   }
-
-    //   const self = this
-    //   if (this.$refs.newuser.validate()) {
-    //     console.log('yes')
-    //     return this.$store.dispatch('user/register', this.user.name)
-    //       .then(() => {
-    //         return self.$router.push({ path: `/users/${self.user.name}` })
-    //       })
-    //   }
-    //   this.close()
-    // },
     register() {
       const self = this
-      if (this.$refs.form.validate()) {
 
-        const now = Date.now()
-        this.user.createdAt = new Date(now).toUTCString()
+      const now = Date.now()
+      this.user.createdAt = new Date(now).toUTCString()
 
-        return this.$store.dispatch('user/register', this.user)
-          .then(() => {
+      return this.$store.dispatch('user/register', this.user.name)
+        .then(() => {
 
-            // localStorage.setItem('userlist',
-            //   JSON.stringify(self.$store.state.user.userlist))
-            self.close()
-            return self.$router.push({ path: `/users/${self.user.name}` })
-          })
-      }
+          console.log('userlist', self.user)
+          // localStorage.setItem('userlist',
+          //   JSON.stringify(self.$store.state.user.userlist))
+          self.$store.commit('user/setDetail', self.user)
+          self.close()
+          return self.$router.push({ path: `/users/${self.user.name}` })
+        })
     },
 
     showDialog(name) {

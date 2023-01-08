@@ -133,8 +133,8 @@ userRoutes.get("/get-photos", (req, res) => {
 //用户注册
 userRoutes.post("/register", (req, res) => {
   res.header("Content-Type", "application/json")
-  if (req.body.user) {
-    const newFolder = join(usersFolder, req.body.user.name)
+  if (req.body.name) {
+    const newFolder = join(usersFolder, req.body.name)
     if (!existsSync(newFolder)) {
       mkdirSync(newFolder)
       res.send('ok')

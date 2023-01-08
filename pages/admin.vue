@@ -183,14 +183,14 @@ export default {
     register() {
       const self = this
       if (this.$refs.newuser.validate()) {
-        this.user.createdAt = Date.now()
+        const now = Date.now()
+        this.user.createdAt = new Date(now).toUTCString()
 
         console.log('yes')
         return this.$store.commit('user/setAdmins', this.admin)
           .then(() => {
             // localStorage.setItem('userlist',
             //   JSON.stringify(self.$store.state.list))
-            return self.$router.push({ path: `/users/${self.user.name}` })
           })
       }
     },
