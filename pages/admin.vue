@@ -99,7 +99,7 @@ export default {
     admins() {
       console.log(this.$store.state.user.adminlist)
       let admins = this.$store.state.user.adminlist
-      localStorage.setItem('adminlist',)
+      localStorage.setItem('adminlist', admins)
       return admins
     },
     formTitle() {
