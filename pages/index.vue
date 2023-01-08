@@ -3,7 +3,7 @@
     <v-flex xs12 sm8 md6>
       <v-card>
         <v-card-title class="headline">
-          基于TensorFlowJS和face-api-js 的实时人脸识别--使用流程
+          口罩检测与人脸识别系统
         </v-card-title>
         <v-responsive>
           <v-list two-line subheader>

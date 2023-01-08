@@ -43,6 +43,13 @@ export const mutations = {
     state.adminlist.push(user)
     console.log(state.adminlist)
   },
+  removeAdmin(state, name) {
+    for (let i = 0; i < state.adminlist.length; i++) {
+      if (state.adminlist[i].name === name) {
+        state.adminlist.splice(i, 1)
+      }
+    }
+  },
   clearaddUserList(state, user) {
     state.userlist = user ? Array.from(user) : []
   },
