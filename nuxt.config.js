@@ -73,7 +73,9 @@ const config = {
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
     '@nuxtjs/vuetify',
-    'nuxt-vuex-localstorage'
+    ['nuxt-vuex-localstorage', {
+      localStorage: ['user']
+    }]
 
   ],
   /*

@@ -23,11 +23,6 @@
     </v-app-bar>
     <v-main>
       <v-container fluid>
-        <!-- <v-progress-circular v-if="loading" :size="200" :width="20" color="red" indeterminate>
-          Loading 7MB models.
-          <br>
-          Please be patient...
-        </v-progress-circular> -->
         <nuxt />
       </v-container>
     </v-main>
@@ -64,12 +59,7 @@ export default {
   async mounted() {
     const self = this
 
-    const userlist = JSON.parse(window.localStorage.getItem('userlist'))
-    // const adminlist = JSON.parse(window.localStorage.getItem('adminlist'))
-    console.log('local userlist', userlist)
-    await self.$store.commit('user/clearaddUserList', userlist)
-    // await self.$store.commit('user/setAdmins', adminlist)
-    await self.$store.commit('user/loadCombined')
+    // await self.$store.commit('user/loadCombined')
 
     await self.$store.dispatch('face/load')
   },

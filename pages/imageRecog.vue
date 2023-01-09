@@ -38,17 +38,14 @@ export default {
       imgalert: null
     }
   },
-
-
-
   async beforeMount() {
     const self = this
     await self.$store.dispatch('face/getAll')
-      .then(() => self.$store.dispatch('face/getFaceMatcher'))
+      .then(() => {
+        self.$store.dispatch('face/getFaceMatcher')
+        self.$store.dispatch('face/getMaskModel')
+      })
 
-  },
-
-  async mounted() {
   },
 
   beforeDestroy() {
@@ -115,16 +112,16 @@ export default {
                 options
               }),
                 //添加口罩识别项
-                // detection.maskdetect = await maskDetections
-                // console.log(detection, '检测结果')
-                //画出识别结果
-                self.$store.dispatch('face/draw',
-                  {
-                    canvasDiv,
-                    canvasCtx,
-                    detection,
-                    options
-                  })
+                detection.maskdetect = await self.$store.dispatch('face/classify', { canvas: canvasDiv });
+              // console.log(detection, '检测结果')
+              //画出识别结果
+              self.$store.dispatch('face/draw',
+                {
+                  canvasDiv,
+                  canvasCtx,
+                  detection,
+                  options
+                })
             })
           }
         }, 1000)

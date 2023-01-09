@@ -62,12 +62,6 @@
                   <v-btn @click="closeDelete()" color="green darken-1" text>取消</v-btn>
                   <v-btn @click="deleteItemConfirm()" color="green darken-1" text>确定</v-btn>
                 </v-card-actions>
-                <!-- <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="closeDelete">取消</v-btn>
-                  <v-btn color="blue darken-1" text @click="deleteItemConfirm">确认</v-btn>
-                  <v-spacer></v-spacer>
-                </v-card-actions> -->
               </v-card>
             </v-dialog>
           </v-toolbar>
@@ -110,7 +104,7 @@ export default {
         name: '',
         phone: null,
         sex: '',
-        photos: [],
+        // photos: [],
         createdAt: null
       },
       nameRules: [
@@ -127,7 +121,7 @@ export default {
         { text: '用户名', value: 'name' },
         { text: '用户性别', value: 'sex' },
         { text: '用户电话号码', value: 'phone' },
-        { text: '人脸信息录入', value: 'photos' },
+        // { text: '人脸信息录入', value: 'photos' },
         { text: '创建时间', value: 'createdAt' },
         { text: 'Actions', value: 'actions', sortable: false },
 
@@ -159,16 +153,15 @@ export default {
       for (let i = 0; i < arr1.length; i++) {
         merged.push({
           ...arr1[i],
-          ...(arr2.find((itmInner) => itmInner.name === arr1[i].name))
-        }
-        );
+          ...arr2[i]
+        });
       }
 
-      console.log('merge', merged)
+      console.log('merged', merged)
 
 
-      console.log('userold', arr1)
-      console.log('user', arr2)
+      console.log('photolist', arr1)
+      console.log('userlist', arr2)
       return merged
     },
     formTitle() {

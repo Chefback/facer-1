@@ -9,16 +9,16 @@ export const state = () => ({
 })
 
 export const mutations = {
-  loadCombined(state) {
-    let user = state.list
-    let userlist = state.userlist
-    let photo2map = user.reduce((acc, curr) => {
-      acc[curr.name] = curr
-      return acc;
-    }, {});
-    let combined = user && userlist ? userlist.map(d => Object.assign(d, photo2map[d.name])) : [];
-    state.combinedlist = combined
-  },
+  // loadCombined(state) {
+  //   let user = state.list
+  //   let userlist = state.userlist
+  //   let photo2map = user.reduce((acc, curr) => {
+  //     acc[curr.name] = curr
+  //     return acc;
+  //   }, {});
+  //   let combined = user && userlist ? userlist.map(d => Object.assign(d, photo2map[d.name])) : [];
+  //   state.combinedlist = combined
+  // },
   setUsers(state, users) {
     //set server data
     state.list = users
@@ -27,6 +27,8 @@ export const mutations = {
   setDetail(state, users) {
     //set server data
     state.userlist.push(users)
+    console.log('userdetail', users)
+    console.log('stateuserlist', state.userlist)
   },
   addUser(state, name) {
     state.list.push({
@@ -123,6 +125,7 @@ export const actions = {
 
 export const getters = {
   userByName: state => (name) => {
+    let user2 = state.userlist.find(user => user.name === name)
     return state.list.find(user => user.name === name)
   },
   isFetched: (state) => {
