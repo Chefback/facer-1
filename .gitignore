@@ -81,3 +81,4 @@ dist
 .idea
 
 data/users
+data/faces.json
