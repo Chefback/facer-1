@@ -1,8 +1,7 @@
-# face®
+# 口罩检测与人脸识别系统
 
-[![Facer Demo](https://img.youtube.com/vi/rHUQyRe8JyQ/0.jpg)](https://www.youtube.com/watch?v=rHUQyRe8JyQ)
 
- Realtime Face Recognition app using:
+本系统使用了以下库
  - [face-api.js](https://github.com/justadudewhohacks/face-api.js)
  - [TensorflowJS](https://github.com/tensorflow/tfjs)
  - [VueJS](https://github.com/vuejs/vue)
@@ -12,22 +11,23 @@
  - [Docker](https://github.com/docker)
 
 
-# Install
-Run `npm i` in the root folder
+# 安装
+ 在根文件夹里运行`npm i` 
 
-# Run
 
-## Development mode
-1. Run `npm run api` for starting the API server 
-2. Run `npm run dev` for starting in development mode
+# 运行
 
-## Production mode
-1. Run `npm run build` for building in production mode
-2. Run `npm run start` for starting in production mode
+## 开发模式
+1. 运行`npm run api` 开启后端服务器
+2. 运行`npm run dev` 开启开发模式前端
 
-# Deploy
+## 生产模式
+1. 运行 `npm run build` 构建项目
+2. 运行 `npm run start` 开启生产模式前端
 
-## Docker build
+# 部署
+
+## Docker 映像构建
 Either build your own Docker images
 - `docker build -t gjovanov/facer .`
 
@@ -36,11 +36,11 @@ or us the build script with your own docker hub username and image name:
 - `./build.sh`
 
 
-## Docker pull
+## Docker 映像拉取
 Or pull the one from Docker Hub
 `docker pull gjovanov/facer .`
 
-## Docker run
+## Docker 映像运行
 ```docker
 docker run -d --name facer \
     --hostname facer \

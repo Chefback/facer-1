@@ -84,8 +84,10 @@ export default {
     //挂载前先从服务器获取脸部特征文件，再从特征文件中提取描述器作为匹配器的已知参数
     const self = this
     await self.$store.dispatch('face/getAll')
-      .then(() => self.$store.dispatch('face/getMaskModel'))
-      .then(() => self.$store.dispatch('face/getFaceMatcher'))
+      .then(() => {
+        self.$store.dispatch('face/getFaceMatcher')
+        self.$store.dispatch('face/getMaskModel')
+      })
   },
 
   async mounted() {
@@ -137,7 +139,7 @@ export default {
         //从视频流中检测人脸
         const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options });
         // const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
-        // const maskDetections = await self.$store.dispatch('face/classify', { canvas: canvasDiv });
+        const maskDetections = await self.$store.dispatch('face/classify', { canvas: canvasDiv });
         // console.log(maskDetections);
         // {
         //     "className": "Mask",
@@ -152,16 +154,16 @@ export default {
               options
             }),
               //添加口罩识别项
-              // detection.maskdetect = await maskDetections
-              // console.log(detection, '检测结果')
-              //画出识别结果
-              self.$store.dispatch('face/draw',
-                {
-                  canvasDiv,
-                  canvasCtx,
-                  detection,
-                  options
-                })
+              detection.maskdetect = await maskDetections
+            // console.log(detection, '检测结果')
+            //画出识别结果
+            self.$store.dispatch('face/draw',
+              {
+                canvasDiv,
+                canvasCtx,
+                detection,
+                options
+              })
           })
         }
         const t1 = performance.now()

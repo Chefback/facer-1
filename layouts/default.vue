@@ -65,10 +65,10 @@ export default {
     const self = this
 
     const userlist = JSON.parse(window.localStorage.getItem('userlist'))
-    const adminlist = JSON.parse(window.localStorage.getItem('adminlist'))
+    // const adminlist = JSON.parse(window.localStorage.getItem('adminlist'))
     console.log('local userlist', userlist)
     await self.$store.commit('user/clearaddUserList', userlist)
-    await self.$store.commit('user/setAdmins', adminlist)
+    // await self.$store.commit('user/setAdmins', adminlist)
     await self.$store.commit('user/loadCombined')
 
     await self.$store.dispatch('face/load')
