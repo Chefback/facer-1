@@ -1,153 +1,155 @@
-const db = require("../models");
-const User = db.User;
-const Op = db.Sequelize.Op;
+const { User } = require('../models')
+const mongoose = require('mongoose')
+const upload = require("./upload")
 
-// Create and Save a new Tutorial
-exports.create = (req, res) => {
-    // Validate request
-    if (!req.body.title) {
-        res.status(400).send({
-            message: "Content can not be empty!"
+const config = require('../models/config');
+
+const url = config.url + config.database;
+const connect = mongoose.createConnection(url, { useNewUrlParser: true, useUnifiedTopology: true });
+
+let gfs;
+
+connect.once('open', () => {
+    // initialize stream
+    gfs = new mongoose.mongo.GridFSBucket(connect.db, {
+        bucketName: config.imgBucket
+    });
+});
+
+
+// Create and Save a new User
+exports.create = async (req, res) => {
+    res.header("Content-Type", "application/json")
+    let newUser = new User(
+        req.body
+    );
+
+    newUser.save()
+        .then((user) => {
+            res.status(200).json({
+                success: true,
+                user,
+            });
+        })
+        .catch(err => res.status(500).json(err));
+}
+
+/**
+ * Delete a user and all its photos 
+ *
+ * @param {*} req pass in username
+ * @param {*} res send delete result
+ */
+exports.delete = async (req, res) => {
+    const user = await User.findOneAndDelete({ name: req.body.user })
+    const files = user.photos
+    console.log(files.length)
+    if (files.length != 0) {
+        files.forEach((file) => {
+            gfs.delete(file)
+                .then(() => {
+                    res.status(200).json({
+                        success: true,
+                        message: `File with ID ${file} of User ${user._id} is deleted`,
+                    });
+                })
+                .catch(
+                    (err => res.status(404).json({ err: err }))
+                );
+        })
+    } else {
+        res.status(200).json({
+            success: true,
+            message: `User with ID ${user._id} is deleted`,
         });
-        return;
     }
-
-    // Create a Tutorial
-    const user = {
-        name: req.body.name,
-        sex: req.body.sex,
-        phone: req.body.phone,
-        photos: req.body.photos,
-    };
-
-    // Save Tutorial in the database
-    User.create(user)
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while creating the Tutorial."
-            });
-        });
 };
 
-// Retrieve all Tutorials from the database.
-exports.findAll = (req, res) => {
-    const title = req.query.title;
-    var condition = title ? { title: { [Op.like]: `%${title}%` } } : null;
-
-    User.findAll({ where: condition })
-        .then(data => {
-            res.send(data);
-        })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while retrieving tutorials."
+exports.update = async (req, res) => {
+    await User.findOneAndUpdate(
+        { name: req.body.name }, req.body, { new: true })
+        .then((user) => {
+            res.status(200).json({
+                success: true,
+                user,
             });
-        });
-};
-
-// Find a single Tutorial with an id
-exports.findOne = (req, res) => {
-    const id = req.params.id;
-
-    User.findByPk(id)
-        .then(data => {
-            if (data) {
-                res.send(data);
-            } else {
-                res.status(404).send({
-                    message: `Cannot find Tutorial with id=${id}.`
-                });
-            }
         })
-        .catch(err => {
-            res.status(500).send({
-                message: "Error retrieving Tutorial with id=" + id
-            });
+        .catch((e) => res.status(500).json(e))
+}
+
+exports.upload = async (req, res) => {
+    try {
+        await upload(req, res).then(async () => {
+            const fileId = req.files.map(file => file.id)
+            console.log(req.body.user)
+            await User.updateOne(
+                { name: req.body.user }, { $push: { photos: { $each: fileId } } })
         });
-};
+        console.log(req.files);
 
-// Update a Tutorial by the id in the request
-exports.update = (req, res) => {
-    const id = req.params.id;
+        if (req.files == undefined) {
+            return res.send({
+                message: "You must select a file.",
+            });
+        }
 
-    User.update(req.body, {
-        where: { id: id }
+        return res.send(req.files);
+    } catch (error) {
+        console.log(error);
+
+        return res.send({
+            message: "Error when trying upload image: ${error}",
+        });
+    }
+}
+
+// Retrieve all Users from the database.
+exports.getAll = async (req, res) => {
+    await User.find().then((users) => {
+        // user.photos.forEach((i) => {
+        //     gfs.find({ i })
+        //     cursor.forEach(file => gfs.delete(file._id))
+        // })
+        return res.send(users)
     })
-        .then(num => {
-            if (num == 1) {
-                res.send({
-                    message: "Tutorial was updated successfully."
-                });
-            } else {
-                res.send({
-                    message: `Cannot update Tutorial with id=${id}. Maybe Tutorial was not found or req.body is empty!`
-                });
-            }
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: "Error updating Tutorial with id=" + id
-            });
-        });
-};
-
-// Delete a Tutorial with the specified id in the request
-exports.delete = (req, res) => {
-    const id = req.params.id;
-
-    User.destroy({
-        where: { id: id }
-    })
-        .then(num => {
-            if (num == 1) {
-                res.send({
-                    message: "Tutorial was deleted successfully!"
-                });
-            } else {
-                res.send({
-                    message: `Cannot delete Tutorial with id=${id}. Maybe Tutorial was not found!`
-                });
-            }
-        })
-        .catch(err => {
-            res.status(500).send({
-                message: "Could not delete Tutorial with id=" + id
-            });
-        });
-};
-
-// Delete all Tutorials from the database.
-exports.deleteAll = (req, res) => {
-    User.destroy({
-        where: {},
-        truncate: false
-    })
-        .then(nums => {
-            res.send({ message: `${nums} Tutorials were deleted successfully!` });
-        })
         .catch(err => {
             res.status(500).send({
                 message:
-                    err.message || "Some error occurred while removing all tutorials."
+                    err.message || "Some error occurred while deleting photos."
             });
         });
-};
+}
 
-// find all published Tutorial
-exports.findAllPublished = (req, res) => {
-    User.findAll({ where: { published: true } })
-        .then(data => {
-            res.send(data);
+exports.getPhoto = async (req, res) => {
+    await User.findOne(req.body.user).then((user) => {
+        user.photos.forEach((i) => {
+            gfs.find({ i })
+            cursor.forEach(file => gfs.delete(file._id))
         })
+    })
         .catch(err => {
             res.status(500).send({
                 message:
-                    err.message || "Some error occurred while retrieving tutorials."
+                    err.message || "Some error occurred while deleting photos."
             });
         });
-};
+}
+
+
+
+exports.deletePhoto = async (req, res) => {
+    console.log(req.body.id);
+    const fileid = new mongoose.Types.ObjectId(req.body.id)
+    await User.updateOne({ name: req.body.user }, { $pull: { photos: fileid } })
+    gfs.delete(fileid)
+        .then(() => {
+            res.status(200).json({
+                success: true,
+                message: `File with ID ${req.body.id} is deleted`,
+            });
+        })
+        .catch(
+            (err => res.status(404).json({ err: err }))
+        );
+
+}
