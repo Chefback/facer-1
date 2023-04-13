@@ -1,14 +1,18 @@
 const bodyParser = require("body-parser")
 const cookieParser = require("cookie-parser")
 const express = require('express')
-const { join } = require('path')
 const app = express()
+const initRoutes = require("./routes");
+const config = require('./models/config')
+const mongoose = require('mongoose')
 
 app.use(bodyParser.json({ limit: "50mb" }))
+app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.urlencoded({
   extended: true,
   limit: "50mb"
 }))
+app.use(express.text());
 app.use(cookieParser())
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*")
@@ -21,24 +25,14 @@ app.use(function (req, res, next) {
     next()
   }
 })
-
-// Data route
-const dataFolder = join(__dirname, '..', 'data')
-app.use("/data", express.static(dataFolder))
-
-// const db = require("./models");
-// db.sequelize.sync().then(() => {
-//   console.log("Synced db.");
-// })
-//   .catch((err) => {
-//     console.log("Failed to sync db: " + err.message);
-//   });
-
+const url = config.url + config.database
+mongoose.Promise = global.Promise
+mongoose.connect(url).then(() =>
+  console.log("Successfully connect to MongoDB."))
+  .catch((err) => console.log(err)
+  )
 // API routes
-const apiRoutes = express.Router()
-apiRoutes.use('/user', require('./controller/user-controller'))
-apiRoutes.use('/face', require('./controller/face-controller'))
-app.use('/api', apiRoutes)
+initRoutes(app)
 
 module.exports = {
   path: '/',

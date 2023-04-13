@@ -73,16 +73,39 @@ const config = {
     // Doc: https://github.com/nuxt-community/axios-module#usage
     '@nuxtjs/axios',
     '@nuxtjs/vuetify',
-    ['nuxt-vuex-localstorage', {
-      localStorage: ['user']
-    }]
-
+    '@nuxtjs/auth'
   ],
+  auth: {
+    localStorage: true,
+    strategies: {
+      local: {
+        endpoints: {
+          login: {
+            url: '/api/auth/login',
+            method: 'post',
+            propertyName: 'token'
+          },
+          logout: false,
+          user: {
+            url: '/api/auth/user',
+            method: 'get',
+            propertyName: false
+          },
+        },
+      }
+    },
+    redirect: {
+      logout: '/',
+      callback: '/login',
+      home: '/'
+    },
+  },
   /*
    ** Axios module configuration
    */
   axios: {
     // See https://github.com/nuxt-community/axios-module#options
+    baseURL: 'http://localhost:3001',
   },
 
   /*
@@ -91,7 +114,13 @@ const config = {
   build: {
     /*
      ** You can extend webpack config here
-     */
+     */transpile: ["mongodb"],
+    'babel': {
+      "plugins": ['@babel/plugin-proposal-optional-chaining',
+        "@babel/plugin-proposal-nullish-coalescing-operator"
+      ],
+    },
+
     extend(config, ctx) {
       if (!config.node) {
         config.node = {}
@@ -99,12 +128,12 @@ const config = {
       // Run ESLint on save
       config.node.fs = 'empty'
       if (ctx.isDev && ctx.isClient) {
-        config.module.rules.push({
-          enforce: 'pre',
-          test: /\.(js|vue)$/,
-          loader: 'eslint-loader',
-          exclude: /(node_modules)/
-        })
+        // config.module.rules.push({
+        //   enforce: 'pre',
+        //   test: /\.(js|vue)$/,
+        //   loader: 'eslint-loader',
+        //   exclude: /(node_modules)/
+        // })
       }
     }
   }

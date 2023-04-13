@@ -32,6 +32,7 @@
 <script>
 import * as tf from '@tensorflow/tfjs'
 export default {
+  middleware: ['auth'],
   data() {
     return {
       clipped: false,
