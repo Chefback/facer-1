@@ -1,6 +1,6 @@
 const { User } = require('../models')
 const mongoose = require('mongoose')
-const upload = require("../../middleware/upload");
+const upload = require("./upload")
 
 const config = require('../models/config');
 
