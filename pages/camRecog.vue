@@ -154,17 +154,17 @@ export default {
               options
             }),
               //添加口罩识别项
-              detection.maskdetect = await self.$store.dispatch('face/classify', { canvas: canvasDiv });
+              // detection.maskdetect = await self.$store.dispatch('face/classify', { canvas: canvasDiv });
 
-            // console.log(detection, '检测结果')
-            //画出识别结果
-            self.$store.dispatch('face/draw',
-              {
-                canvasDiv,
-                canvasCtx,
-                detection,
-                options
-              })
+              // console.log(detection, '检测结果')
+              //画出识别结果
+              self.$store.dispatch('face/draw',
+                {
+                  canvasDiv,
+                  canvasCtx,
+                  detection,
+                  options
+                })
           })
         }
         const t1 = performance.now()

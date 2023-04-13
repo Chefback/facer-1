@@ -1,20 +1,21 @@
+
 <template>
     <v-container class="text-center">
         <v-row :align="'center'" :justify="'center'" class="mt-12">
             <v-col cols="12" md="6" lg="3">
-                <authenticate-form button-title="Loggin" :form.sync="form"> </authenticate-form>
+                <authenticate-form button-title="Register" form.sync="form"></authenticate-form>
             </v-col>
         </v-row>
         <snack-bar :snackbar-message.sync="snackbarMessage"></snack-bar>
     </v-container>
 </template>
 <script>
-import { login } from "../util/request";
-import AuthenticateForm from "@/components/authenticateForm.vue";
+import AuthenticateForm from '@/components/authenticateForm.vue'
 import SnackBar from '@/components/snackBar'
+
 export default {
     layout: 'login',
-    components: { AuthenticateForm, SnackBar },
+    components: { AuthenticationForm, SnackBar },
     data: () => ({
         form: {
             valid: false,
@@ -22,7 +23,7 @@ export default {
             password: '',
             finish: false
         },
-        snackbarMessage: '',
+        snackbarMessage: ''
     }),
     computed: {
         finish() {
@@ -32,23 +33,31 @@ export default {
     watch: {
         finish(newVal) {
             if (newVal) {
-                this.login()
+                this.register()
                 this.form.finish = false
             }
         }
     },
     methods: {
-        async login() {
+        async register() {
             try {
-                const response = await this.$auth.loginWith('local', {
+                await this.$axios.post('/api/auth/register', {
+                    email: this.form.email,
+                    password: this.form.password
+                })
+
+                const user = await this.$auth.loginWith('local', {
                     data: {
                         email: this.form.email,
                         password: this.form.password
                     }
                 })
-                this.snackbarMessage = response.data.message
+
+                if (user) {
+                    await this.$router.push('/admin')
+                }
+
             } catch (error) {
-                this.snackbar = true
                 this.snackbarMessage = error.response.data.message
             }
         }
