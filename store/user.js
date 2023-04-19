@@ -1,60 +1,35 @@
 
 export const state = () => ({
-  list: [],
   adminlist: [],
   userlist: [],
-  combinedlist: [],
   fetched: false,
   count: 1
 })
 
 export const mutations = {
-  // loadCombined(state) {
-  //   let user = state.list
-  //   let userlist = state.userlist
-  //   let photo2map = user.reduce((acc, curr) => {
-  //     acc[curr.name] = curr
-  //     return acc;
-  //   }, {});
-  //   let combined = user && userlist ? userlist.map(d => Object.assign(d, photo2map[d.name])) : [];
-  //   state.combinedlist = combined
-  // },
   setUsers(state, users) {
     //set server data
-    state.list = users
+    state.userlist = users
     state.fetched = true
   },
-  setDetail(state, users) {
-    //set server data
-    state.userlist.push(users)
-    console.log('userdetail', users)
-    console.log('stateuserlist', state.userlist)
-  },
-  addUser(state, name) {
-    state.list.push({
-      name,
-      photos: []
-    })
+  addUser(state, newuser) {
+    state.userlist.push(newuser)
   },
 
-  setAdmins(state, users) {
-
-    state.adminlist = users ? Array.from(users) : []
-  },
-  addAdmin(state, user) {
-    state.adminlist.push(user)
-    console.log(state.adminlist)
-  },
-  removeAdmin(state, name) {
-    for (let i = 0; i < state.adminlist.length; i++) {
-      if (state.adminlist[i].name === name) {
-        state.adminlist.splice(i, 1)
-      }
-    }
-  },
-  clearaddUserList(state, user) {
-    state.userlist = user ? Array.from(user) : []
-  },
+  // setAdmins(state, users) {
+  //   state.adminlist = users ? Array.from(users) : []
+  // },
+  // addAdmin(state, user) {
+  //   state.adminlist.push(user)
+  //   console.log(state.adminlist)
+  // },
+  // removeAdmin(state, name) {
+  //   for (let i = 0; i < state.adminlist.length; i++) {
+  //     if (state.adminlist[i].name === name) {
+  //       state.adminlist.splice(i, 1)
+  //     }
+  //   }
+  // },
   removeUser(state, name) {
     for (let i = 0; i < state.list.length; i++) {
       if (state.list[i].name === name) {
@@ -64,7 +39,7 @@ export const mutations = {
   },
 
   addPhotos(state, data) {
-    const found = state.list.find((item) => {
+    const found = state.userlist.find((item) => {
       return item.name === data.user
     })
     if (found) {
@@ -91,43 +66,53 @@ export const mutations = {
 export const actions = {
   async getAll({ commit }) {
     const data = await this.$axios.$get('/api/user/getAll')
+    const userlist = data.map((user) => {
+      user.photos.forEach((x) => {
+        console.log(x, 'x')
+        return `http://127.0.0.1:3001/${user.name}/${x._id}`
+      })
+      return user
+    })
     console.log('serverdata', data)
+    console.log('data', userlist)
     commit('setUsers', data)
-    return data
   },
-  async register({ commit }, name) {
-    await this.$axios.$post('/api/user/register', { name })
-    commit('addUser', name)
+
+  async create({ commit }, user) {
+    const newuser = await this.$axios.$post('/api/user/create', { user })
+    commit('addUser', newuser)
   },
-  async delete({ commit }, name) {
-    await this.$axios.$post('/api/user/delete', { name })
-    commit('removeUser', name)
+
+  async update({ commit }, user) {
+    const newuser = await this.$axios.$post('/api/user/update', { user })
+    commit('updateUser', newuser)
   },
-  async upload({ commit }, upload) {
-    const data = await this.$axios.$post('/api/user/upload', upload)
+
+  async delete({ commit }, user) {
+    await this.$axios.$post('/api/user/delete', { user })
+    commit('removeUser', user)
+  },
+
+  async upload({ commit }, photo) {
+    const data = await this.$axios.$post('/api/user/upload', photo)
     commit('addPhotos', {
-      user: upload.get('user'),
-      photos: data
+      user: photo.user,
+      photos: photo.fileUpload
     })
   },
-  async uploadBase64({ commit }, upload) {
-    const data = await this.$axios.$post('/api/user/uploadBase64', { upload })
-    commit('addPhotos', {
-      user: upload.user,
-      photos: data
-    })
-  },
+
   async deletePhoto({ commit }, upload) {
-    await this.$axios.$post('/api/user/deletePhoto', { upload })
-    commit('removePhoto', upload)
+    await this.$axios.$post('/api/user/deletePhoto', upload)
+    // commit('removePhoto', upload)
   }
 }
 
 export const getters = {
   userByName: state => (name) => {
-    let user2 = state.userlist.find(user => user.name === name)
-    return state.list.find(user => user.name === name)
+    let user = state.userlist.find(user => user.name === name)
+    return user
   },
+
   isFetched: (state) => {
     return !!state.fetched
   }
