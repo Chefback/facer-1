@@ -78,42 +78,7 @@ export default {
 
   methods: {
     async train() {
-      const self = this
-      self.resetProgress()
-      const faces = []
-      await Promise.all(self.users.map(async (user) => {
-        const descriptors = []
-        await Promise.all(user.photos.map(async (photo, index) => {
-          const photoId = `${user.name}${index}`
-          const img = document.getElementById(photoId)
-          const options = {
-            detectionsEnabled: true,
-            descriptorsEnabled: true,
-          }
-          //检测注册用户的人脸数据
-          const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: img, options })
-          detections.forEach((d) => {
-            descriptors.push({
-              path: photo,
-              descriptor: d.descriptor
-            })
-          })
-          self.increaseProgress()
-        }))
-        faces.push({
-          user: user.name,
-          descriptors
-        })
-      }))
-      await self.$store.dispatch('face/save', faces)
-        .then(() => {
-          self.increaseProgress()
-          self.isProgressActive = false
-        })
-        .catch((e) => {
-          self.isProgressActive = false
-          console.error(e)
-        })
+      await this.$store.dispatch('face/train')
     },
     increaseProgress() {
       const self = this
