@@ -82,3 +82,5 @@ dist
 
 data/users
 data/faces.json
+
+package-lock.json
