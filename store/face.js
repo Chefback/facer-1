@@ -1,8 +1,8 @@
 import * as faceapi from '@vladmandic/face-api';
-import metadataJSON from "../data/metadata.json";
-import { tf } from '@vladmandic/face-api';
+import metadata from "../data/metadata.json";
 import { CustomMobileNet } from '@teachablemachine/image';
 import * as tmImage from '@teachablemachine/image';
+import { loadLayersModel } from '@tensorflow/tfjs';
 
 export const state = () => ({
   faces: [],
@@ -124,15 +124,13 @@ export const actions = {
     return detections
   },
 
-  async getMaskModel({ commit }) {
+  async getMaskClassify({ commit }, { canvas }) {
 
-    const URL = 'https://teachablemachine.withgoogle.com/models/hBKYa4zJe/'
-    const modelURL = URL + "model.json";
-    const metadataURL = URL + "metadata.json";
-    const model = await tmImage.load(modelURL, metadataURL)
-
-    commit('setMaskClassfier', model)
-    return model
+    const modelfile = await loadLayersModel('/data/model.json')
+    const MobileNet = new CustomMobileNet(modelfile, metadata)
+    const maskresult = await MobileNet.predict(canvas)
+    // commit('setMaskClassfier', MobileNet)
+    return maskresult
 
   },
 
@@ -148,6 +146,7 @@ export const actions = {
     const result = await state.maskClassfier.predict(canvas)
     return result
   },
+
   draw({ commit, state }, { canvasDiv, canvasCtx, detection, options }) {
 
     let name = ''
