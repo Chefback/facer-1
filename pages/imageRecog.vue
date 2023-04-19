@@ -43,7 +43,6 @@ export default {
     await self.$store.dispatch('face/getAll')
       .then(() => {
         self.$store.dispatch('face/getFaceMatcher')
-        self.$store.dispatch('face/getMaskModel')
       })
 
   },
@@ -100,7 +99,6 @@ export default {
           }
           //从视频流中检测人脸
           const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options })
-          // const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
           // console.log(maskDetections);
           // console.log(detections);
 
@@ -112,7 +110,7 @@ export default {
                 options
               }),
                 //添加口罩识别项
-                detection.maskdetect = await self.$store.dispatch('face/classify', { canvas: canvasDiv });
+                detection.maskdetect = await self.$store.dispatch('face/getMaskClassify', { canvas: canvasDiv });
               // console.log(detection, '检测结果')
               //画出识别结果
               self.$store.dispatch('face/draw',

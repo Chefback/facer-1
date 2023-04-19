@@ -86,7 +86,7 @@ export default {
     await self.$store.dispatch('face/getAll')
       .then(() => {
         self.$store.dispatch('face/getFaceMatcher')
-        self.$store.dispatch('face/getMaskModel')
+        // self.$store.dispatch('face/getMaskModel')
       })
   },
 
@@ -112,15 +112,18 @@ export default {
       if (this.interval) {
         clearInterval(this.interval)
       }
-      this.$store.dispatch('camera/stopCamera')
+      const self = this
+      self.$store.dispatch('camera/stopCamera').then(() => {
 
-      const canvasDiv = document.getElementById('live-canvas')
+        const canvasDiv = document.getElementById('live-canvas')
 
-      //获取画布组件上下文,实际绘制在这上面进行
-      const canvasCtx = canvasDiv.getContext('2d', { willReadFrequently: true })
-      canvasCtx.clearRect(0, 0, 320, 247)
-      this.realFps = 0;
-      this.duration = 0
+        //获取画布组件上下文,实际绘制在这上面进行
+        const canvasCtx = canvasDiv.getContext('2d', { willReadFrequently: true })
+        canvasCtx.clearRect(0, 0, 320, 247)
+        self.realFps = 0;
+        self.duration = 0
+      })
+
     },
 
     start(videoDiv, canvasDiv, canvasCtx, fps) {
@@ -139,13 +142,13 @@ export default {
         //从视频流中检测人脸
         const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options });
         // const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
-        // const maskDetections = await self.$store.dispatch('face/classify', { canvas: canvasDiv });
-        // console.log(maskDetections);
+        // const maskDetections = await self.$store.dispatch('face/getMaskClassify', { canvas: canvasDiv });
+        // console.log(maskDetections, 'mask');
         // {
         //     "className": "Mask",
         //     "probability": 0.0063973600044846535
         // }
-
+        console.log(detections)
         if (detections.length) {
           detections.forEach(async (detection) => {
             //添加人脸识别结果
@@ -153,8 +156,9 @@ export default {
               descriptor: detection.descriptor,
               options
             }),
+              // console.log(detection)
               //添加口罩识别项
-              detection.maskdetect = await self.$store.dispatch('face/classify', { canvas: canvasDiv });
+              detection.maskdetect = await self.$store.dispatch('face/getMaskClassify', { canvas: canvasDiv });
 
             // console.log(detection, '检测结果')
             //画出识别结果
@@ -166,6 +170,8 @@ export default {
                 options
               })
           })
+
+          console.log(detections, '检测结果')
         }
         const t1 = performance.now()
         self.duration = (t1 - t0).toFixed(2)
