@@ -20,7 +20,7 @@
 
         <v-tab href="#tab-1">上传</v-tab>
 
-        <v-tab href="#tab-2">拍照</v-tab>
+        <!-- <v-tab href="#tab-2">拍照</v-tab> -->
 
         <v-tab-item value="tab-1">
           <v-card flat>
@@ -32,7 +32,7 @@
           </v-card>
         </v-tab-item>
 
-        <v-tab-item value="tab-2">
+        <!-- <v-tab-item value="tab-2">
           <v-card flat>
             <v-btn v-if="isCameraStarted" @click="takePhoto" color="secondary">
               拍照
@@ -46,7 +46,7 @@
               </v-flex>
             </v-layout>
           </v-card>
-        </v-tab-item>
+        </v-tab-item> -->
 
       </v-tabs>
     </v-flex>
@@ -55,7 +55,7 @@
         <v-btn @click="showDialog(photo)" fab small color="primary" dark>
           <v-icon>close</v-icon>
         </v-btn>
-        <img :id="user.name + index" :src="photo">
+        <img :id="user.name + index" :src="'http://127.0.0.1:3001/api/user/' + user.name + '/' + photo">
       </v-card>
     </v-flex>
   </v-layout>
@@ -75,7 +75,10 @@ export default {
   computed: {
     user() {
       const userByName = this.$store.getters['user/userByName']
-      return userByName(this.$route.params.name)
+      const find = userByName(this.$route.params.name)
+      console.log(find.photos, 'find')
+      console.log(find, 'fid')
+      return find
     },
     isCameraStarted() {
       return this.$store.getters['camera/isCameraStarted']
@@ -107,6 +110,7 @@ export default {
   methods: {
     showDialog(photo) {
       this.dialog = true
+      console.log(photo)
       this.selectedPhoto = photo
     },
 
@@ -121,7 +125,7 @@ export default {
         const comps = this.selectedPhoto.split('/')
         await this.$store.dispatch('user/deletePhoto', {
           user: this.user.name,
-          file: comps[comps.length - 1]
+          id: this.selectedPhoto
         })
         this.selectedPhoto = null
         this.dialog = false
@@ -137,12 +141,14 @@ export default {
       //map()将数组根据函数返回结果生成新数组
       Array.from(Array(fileList.length).keys()).map((x) => {
         console.log(fieldName)
+
         //将input里的file列表中的file对象按文件，文件名逐个加入到formdata
         formData.append(fieldName, fileList[x], fileList[x].name)
       })
+      console.log(formData, 'form')
       //上传文件到服务器，后清空上传框
       return self.$store.dispatch('user/upload', formData)
-        .then((result) => {
+        .then(() => {
           if (document) {
             document.getElementById('fileUpload').value = ''
           }
@@ -154,34 +160,21 @@ export default {
       const canvasCtx = canvas.getContext('2d', { willReadFrequently: true })
       canvasCtx.drawImage(video, 0, 0, 320, 247)
       //将截取的视频帧绘制到canva上并转化为dataurl,上传给服务器
-      const content = canvas.toDataURL('image/jpeg')
+      const self = this
+      const imgname = `${Date.now()}-${self.user.name}.png`
+
       const formData = new FormData()
-      formData.append('user', this.user.name)
-      formData.append('fileUpload',)
-      await this.$store.dispatch('user/uploadBase64', {
-        user: this.user.name,
-        content
+      formData.append('user', self.user.name)
+      canvas.toBlob((blob) => {
+
+        const file = new File([blob], imgname);
+        console.log(file)
+
+        formData.append('fileUpload', file, imgname)
       })
+      console.log(formData)
+      return await this.$store.dispatch('user/upload', formData)
     },
-    // dataURItoBlob(dataURI) {
-    //   // convert base64/URLEncoded data component to raw binary data held in a string
-    //   var byteString;
-    //   if (dataURI.split(',')[0].indexOf('base64') >= 0)
-    //     byteString = atob(dataURI.split(',')[1]);
-    //   else
-    //     byteString = unescape(dataURI.split(',')[1]);
-
-    //   // separate out the mime component
-    //   var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0];
-
-    //   // write the bytes of the string to a typed array
-    //   var ia = new Uint8Array(byteString.length);
-    //   for (var i = 0; i < byteString.length; i++) {
-    //     ia[i] = byteString.charCodeAt(i);
-    //   }
-
-    //   return new Blob([ia], { type: mimeString });
-    // }
   }
 }
 </script>
