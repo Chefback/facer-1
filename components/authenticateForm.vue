@@ -1,12 +1,16 @@
 
 <template>
     <v-form ref="form" v-model="form.valid" lazy-validation>
-        <v-text-field v-model="form.email" :rules="emailRules" label="E-mail" required></v-text-field>
+        <v-text-field v-model="form.name" :rules="nameRules" label="Name" required></v-text-field>
 
         <v-text-field v-model="form.password" :counter="20" :rules="passwordRules" :type="'password'" label="Password"
             required></v-text-field>
+
         <v-btn :disabled="!form.valid" color="indigo lighten-1" class="mr-4" @click="validate">
             {{ buttonTitle }}
+        </v-btn>
+        <v-btn color="indigo lighten-1" class="mr-4" @click="loginorregis">
+            {{ anobuttonTitle }}
         </v-btn>
     </v-form>
 </template>
@@ -15,9 +19,8 @@
 export default {
     name: 'authenticationForm',
     data: () => ({
-        emailRules: [
-            v => !!v || 'E-mail is required',
-            v => /.+@.+\..+/.test(v) || 'E-mail must be valid',
+        nameRules: [
+            v => !!v || 'Name is required',
         ],
         passwordRules: [
             v => !!v || 'Password is required',
@@ -32,6 +35,11 @@ export default {
             required: true
         }
     },
+    computed: {
+        anobuttonTitle() {
+            return this.buttonTitle == 'Loggin' ? 'Register' : 'Loggin'
+        }
+    },
     mounted() {
         this.form.valid = false
     },
@@ -41,6 +49,10 @@ export default {
                 this.form.finish = true
                 this.$emit('update:form', this.form)
             }
+        },
+        async loginorregis() {
+            const path = this.anobuttonTitle == 'Register' ? '/signup' : '/login'
+            await this.$router.push(path)
         }
     }
 }
