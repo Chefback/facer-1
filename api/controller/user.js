@@ -66,8 +66,8 @@ exports.delete = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-    await User.findOneAndUpdate(
-        { name: req.body.name }, req.body, { new: true })
+    await User.findByIdAndUpdate(
+        req.body._id, req.body.newdata, { new: true })
         .then((user) => {
             res.status(200).json({
                 success: true,
@@ -80,12 +80,25 @@ exports.update = async (req, res) => {
 exports.upload = async (req, res) => {
     try {
         await upload(req, res).then(async () => {
-            const fileId = req.files.map(file => file.id)
-            console.log(req.body.user)
-            await User.updateOne(
-                { name: req.body.user }, { $push: { photos: { $each: fileId } } })
+            req.files.map(async (file) => {
+                const fileid = new mongoose.Types.ObjectId(file.id)
+                // const base64Data = file.buffer.toString('base64')
+                // let newfile = new Image({
+                //     filename: file.originalname,
+                //     contentType: file.mimetype,
+                //     data: base64Data
+                // })
+
+                await User.updateOne(
+                    { name: req.body.user }, { $push: { photos: fileid } })
+            })
+            // newfile.save().then((photo) => {
+            //     res.status(200).json(
+            //         photo
+            //     )
+            // })
         });
-        console.log(req.files);
+        console.log(req.files, req.body.user);
 
         if (req.files == undefined) {
             return res.send({
@@ -106,10 +119,6 @@ exports.upload = async (req, res) => {
 // Retrieve all Users from the database.
 exports.getAll = async (req, res) => {
     await User.find().then((users) => {
-        // user.photos.forEach((i) => {
-        //     gfs.find({ i })
-        //     cursor.forEach(file => gfs.delete(file._id))
-        // })
         return res.send(users)
     })
         .catch(err => {
@@ -120,32 +129,57 @@ exports.getAll = async (req, res) => {
         });
 }
 
-exports.getPhoto = async (req, res) => {
-    await User.findOne(req.body.user).then((user) => {
-        user.photos.forEach((i) => {
-            gfs.find({ i })
-            cursor.forEach(file => gfs.delete(file._id))
-        })
-    })
-        .catch(err => {
-            res.status(500).send({
-                message:
-                    err.message || "Some error occurred while deleting photos."
-            });
+// exports.getPhoto = async (req, res) => {
+//     await User.findOne(req.body.user).then((user) => {
+//         user.photos.forEach((i) => {
+//             gfs.find({ i })
+//             cursor.forEach(file => gfs.delete(file._id))
+//         })
+//     })
+//         .catch(err => {
+//             res.status(500).send({
+//                 message:
+//                     err.message || "Some error occurred while deleting photos."
+//             });
+//         });
+// }
+exports.download = async (req, res) => {
+    try {
+
+        const fileid = new mongoose.Types.ObjectId(req.params.id)
+        console.log(req.params)
+        res.contentType('image/png');
+        let downloadStream = await gfs.openDownloadStream(fileid)
+        // res.pipe(downloadStream)
+        downloadStream.on("data", function (data) {
+            console.log(data)
+            return res.status(200).write(data);
         });
-}
+
+        downloadStream.on("error", function (err) {
+            return res.status(404).send({ message: "Cannot download the Image!" });
+        });
+
+        downloadStream.on("end", () => {
+            return res.end();
+        });
+    } catch (error) {
+        return res.status(500).send({
+            message: error.message,
+        });
+    }
+};
 
 
 
 exports.deletePhoto = async (req, res) => {
-    console.log(req.body.id);
     const fileid = new mongoose.Types.ObjectId(req.body.id)
     await User.updateOne({ name: req.body.user }, { $pull: { photos: fileid } })
     gfs.delete(fileid)
         .then(() => {
             res.status(200).json({
                 success: true,
-                message: `File with ID ${req.body.id} is deleted`,
+                message: `File with ID ${fileid} is deleted`,
             });
         })
         .catch(
