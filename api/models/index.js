@@ -24,4 +24,4 @@ const User = mongoose.model('User', userSchema);
 const Admin = mongoose.model('Admin', adminSchema);
 const Image = mongoose.model('Image', imgSchema);
 
-module.exports = { User, Admin, Image };
+module.exports = { User, Admin };
