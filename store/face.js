@@ -59,10 +59,10 @@ export const actions = {
     if (!state.loading && !state.loaded) {
       commit('loading')
       return Promise.all([
-        faceapi.nets.faceRecognitionNet.loadFromUri('/data/models'),
-        faceapi.nets.faceLandmark68TinyNet.loadFromUri('/data/models'),
-        faceapi.nets.tinyFaceDetector.loadFromUri('/data/models'),
-        // faceapi.nets.tinyYolov2.loadFromUri('/data/models'),
+        faceapi.loadFaceRecognitionModel('/data/models'),
+        faceapi.loadFaceLandmarkModel('/data/models'),
+        faceapi.loadTinyFaceDetectorModel('/data/models'),
+        faceapi.loadFaceExpressionModel('/data/models')
       ])
         .then(() => {
           commit('load')
@@ -81,6 +81,45 @@ export const actions = {
   async save({ commit }, faces) {
     const { data } = await this.$axios.$post('/api/face/save', { faces })
     commit('setFaces', data)
+  },
+  async train({ rootState }) {
+    const self = this
+    const faces = []
+    await Promise.all(rootState.user.userlist.map(async (user) => {
+      const descriptors = []
+      console.log(user)
+      await Promise.all(user.photos.map(async (photo) => {
+        const img = new Image()
+        img.src = photo.data
+        console.log(img)
+        const options = {
+          detectionsEnabled: true,
+          descriptorsEnabled: true,
+        }
+        //检测注册用户的人脸数据
+        const detections = await dispatch('getFaceDetections', { canvas: img, options })
+        detections.forEach((d) => {
+          descriptors.push({
+            path: photo,
+            descriptor: d.descriptor
+          })
+        })
+      }))
+      faces.push({
+        user: user.name,
+        descriptors
+      })
+    }))
+    await dispatch('save', faces)
+      .then(() => {
+        // self.trainalert = true
+        // self.failalert = null
+      })
+      .catch((e) => {
+        // self.trainalert = true
+        // self.failalert = true
+        console.error(e)
+      })
   },
   getFaceMatcher({ commit, state }) {
     //从服务器获取的提取的特征文件中提取注册人脸的描述器
