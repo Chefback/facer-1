@@ -2,7 +2,6 @@ const util = require("util");
 const multer = require("multer");
 const { GridFsStorage } = require("multer-gridfs-storage");
 const dbConfig = require("../models/config");
-const { default: mongoose } = require("mongoose");
 
 var storage = new GridFsStorage({
     url: dbConfig.url + dbConfig.database,
@@ -13,7 +12,7 @@ var storage = new GridFsStorage({
             const filename = `${Date.now()}-${req.body.user}-${file.originalname}`;
             return filename;
         }
-        console.log(req.user, 'userid')
+        console.log(req.body.user, 'userid')
         return {
             bucketName: dbConfig.imgBucket,
             filename: `${Date.now()}-${req.body.user}-${file.originalname}`,
