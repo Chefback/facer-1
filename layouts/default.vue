@@ -39,7 +39,7 @@ export default {
       fixed: false,
       items: [
         { icon: 'home', title: '欢迎', to: '/' },
-        { icon: 'manage_accounts', title: '管理页面', to: '/admin' },
+        // { icon: 'manage_accounts', title: '管理页面', to: '/admin' },
         { icon: 'people', title: '人脸数据库', to: '/users' },
         { icon: 'wallpaper', title: '本地图片检测', to: '/imageRecog' },
         { icon: 'camera', title: '摄像头检测', to: '/camRecog' }
