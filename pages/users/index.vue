@@ -8,7 +8,7 @@
             <v-divider class="mx-4" inset vertical></v-divider>
             <v-btn color="primary" dark class="mb-2" @click="train">训练模型</v-btn>
             <v-snackbar v-model="trainalert">
-              {{ failalert?'训练失败': '训练成功' }}
+              {{ failalert ? '训练失败' : '训练成功' }}
               <template v-slot:action="{ attrs }">
                 <v-btn color="red" text v-bind="attrs" @click="trainalert = false">
                   点击关闭
@@ -30,18 +30,18 @@
                 <v-card-text>
                   <v-container>
                     <v-row>
-                      <v-col cols="12" sm="6" md="4">
+                      <!-- <v-col cols="12" sm="6" md="4">
                         <v-text-field v-model="user.id" :rules="nameRules" label="用户ID"></v-text-field>
-                      </v-col>
+                      </v-col> -->
                       <v-col cols="12" sm="6" md="4">
                         <v-text-field v-model="user.name" :rules="nameRules" label="用户名"></v-text-field>
                       </v-col>
-                      <v-col cols="12" sm="6" md="4">
+                      <!-- <v-col cols="12" sm="6" md="4">
                         <v-text-field v-model="user.phone" label="电话号码"></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6" md="4">
                         <v-select v-model="user.sex" :items="sex" label=" 性别" solo></v-select>
-                      </v-col>
+                      </v-col> -->
                     </v-row>
                   </v-container>
                 </v-card-text>
@@ -100,12 +100,12 @@ export default {
       trainalert: null,
       failalert: null,
       user: {
-        id: '',
+        // id: '',
         name: '',
-        phone: null,
-        sex: '',
+        // phone: null,
+        // sex: '',
         // photos: [],
-        createdAt: null
+        // createdAt: null
       },
       nameRules: [
         v => !!v || 'Full name is required',
@@ -113,16 +113,16 @@ export default {
       ],
       sex: ['男', '女', '未知'],
       headers: [
-        {
-          text: '用户ID',
-          align: 'start',
-          value: 'id',
-        },
+        // {
+        //   text: '用户ID',
+        //   align: 'start',
+        //   value: 'id',
+        // },
         { text: '用户名', value: 'name' },
-        { text: '用户性别', value: 'sex' },
-        { text: '用户电话号码', value: 'phone' },
-        // { text: '人脸信息录入', value: 'photos' },
-        { text: '创建时间', value: 'createdAt' },
+        // { text: '用户性别', value: 'sex' },
+        // { text: '用户电话号码', value: 'phone' },
+        // // { text: '人脸信息录入', value: 'photos' },
+        // { text: '创建时间', value: 'createdAt' },
         { text: 'Actions', value: 'actions', sortable: false },
 
       ],
