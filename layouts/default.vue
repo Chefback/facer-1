@@ -17,9 +17,9 @@
         <v-icon v-html="miniVariant ? 'chevron_right' : 'chevron_left'" />
       </v-btn>
       <v-toolbar-title v-html="title" />
-      <v-flex>
+      <!-- <v-flex>
         <v-btn @click="logout">登出</v-btn>
-      </v-flex>
+      </v-flex> -->
     </v-app-bar>
     <v-main>
       <v-container fluid>
