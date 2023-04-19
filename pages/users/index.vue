@@ -147,22 +147,7 @@ export default {
 
   computed: {
     users() {
-      let arr1 = this.$store.state.user.list
-      let arr2 = this.$store.state.user.userlist
-      let merged = []
-      for (let i = 0; i < arr1.length; i++) {
-        merged.push({
-          ...arr1[i],
-          ...arr2[i]
-        });
-      }
-
-      console.log('merged', merged)
-
-
-      console.log('photolist', arr1)
-      console.log('userlist', arr2)
-      return merged
+      return this.$store.state.user.list
     },
     formTitle() {
       return this.editedIndex === -1 ? '新用户' : '修改用户'
@@ -255,16 +240,14 @@ export default {
     register() {
       const self = this
 
-      const now = Date.now()
-      this.user.createdAt = new Date(now).toUTCString()
+      // const now = Date.now()
+      // this.user.createdAt = new Date(now).toUTCString()
 
       return this.$store.dispatch('user/register', this.user.name)
         .then(() => {
 
-          console.log('userlist', self.user)
           // localStorage.setItem('userlist',
           //   JSON.stringify(self.$store.state.user.userlist))
-          self.$store.commit('user/setDetail', self.user)
           self.close()
           return self.$router.push({ path: `/users/${self.user.name}` })
         })
