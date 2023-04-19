@@ -3,7 +3,8 @@ const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   HOST: process.env.HOST || 'localhost',
   PORT: process.env.PORT || 3000,
-  PORT_API: process.env.PORT_API || 3001
+  PORT_API: process.env.PORT_API || 3001,
+  AUTH_USER_SECRET: '12345678'
 }
 env.API_URL = process.env.API_URL || `http://localhost:${env.PORT_API}`
 
@@ -76,6 +77,7 @@ const config = {
     '@nuxtjs/auth'
   ],
   auth: {
+    // token: { property: 'auth' },
     localStorage: true,
     strategies: {
       local: {
@@ -86,17 +88,24 @@ const config = {
             propertyName: 'token'
           },
           logout: false,
-          user: {
-            url: '/api/auth/user',
-            method: 'get',
-            propertyName: false
-          },
+          user: false
+          // user: {
+          //   url: '/api/auth/user',
+          //   method: 'get',
+          //   propertyName: false
+          // },
         },
-      }
+        user: {
+          autoFetch: false
+        }
+      },
+    },
+    localStorage: {
+      prefix: 'auth.'
     },
     redirect: {
-      logout: '/',
-      callback: '/login',
+      logout: '/login',
+      login: '/login',
       home: '/'
     },
   },
@@ -114,13 +123,7 @@ const config = {
   build: {
     /*
      ** You can extend webpack config here
-     */transpile: ["mongodb"],
-    'babel': {
-      "plugins": ['@babel/plugin-proposal-optional-chaining',
-        "@babel/plugin-proposal-nullish-coalescing-operator"
-      ],
-    },
-
+     */
     extend(config, ctx) {
       if (!config.node) {
         config.node = {}
