@@ -9,21 +9,22 @@
     </v-container>
 </template>
 <script>
-import { login } from "../util/request";
 import AuthenticateForm from "@/components/authenticateForm.vue";
 import SnackBar from '@/components/snackBar'
 export default {
     layout: 'login',
     components: { AuthenticateForm, SnackBar },
-    data: () => ({
-        form: {
-            valid: false,
-            email: '',
-            password: '',
-            finish: false
-        },
-        snackbarMessage: '',
-    }),
+    data() {
+        return {
+            form: {
+                valid: false,
+                name: '',
+                password: '',
+                finish: false
+            },
+            snackbarMessage: '404 not found',
+        }
+    },
     computed: {
         finish() {
             return this.form.finish
@@ -39,18 +40,22 @@ export default {
     },
     methods: {
         async login() {
-            try {
-                const response = await this.$auth.loginWith('local', {
-                    data: {
-                        email: this.form.email,
-                        password: this.form.password
-                    }
-                })
-                this.snackbarMessage = response.data.message
-            } catch (error) {
+            await this.$auth.loginWith('local', {
+                data: {
+                    name: this.form.name,
+                    password: this.form.password
+                }
+            }).then((res) => {
+
+                console.log(res.data.message)
+
+                this.snackbar = true
+                this.snackbarMessage = res.data.message
+            }).catch((error) => {
+                console.log(error)
                 this.snackbar = true
                 this.snackbarMessage = error.response.data.message
-            }
+            })
         }
     }
 }
