@@ -30,6 +30,7 @@
 </template>
 
 <script>
+import * as tf from '@tensorflow/tfjs'
 export default {
   data() {
     return {
@@ -62,6 +63,7 @@ export default {
     // await self.$store.commit('user/loadCombined')
 
     await self.$store.dispatch('face/load')
+    console.log(tf.getBackend())
   },
   methods: {
     logout() {
