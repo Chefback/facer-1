@@ -61,7 +61,6 @@ export default {
   async mounted() {
     const self = this
 
-    // await self.$store.commit('user/loadCombined')
 
     await self.$store.dispatch('face/load')
     console.log(tf.getBackend())
