@@ -6,15 +6,15 @@
           <v-toolbar flat>
             <v-toolbar-title>人脸信息管理</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
-            <!-- <v-btn color="primary" dark class="mb-2" @click="train">训练模型</v-btn>
-            <v-snackbar v-model="trainalert">
+            <v-btn color="primary" dark class="mb-2" @click="train">训练模型</v-btn>
+            <!-- <v-snackbar v-model="trainalert">
               {{ failalert ? '训练失败' : '训练成功' }}
               <template v-slot:action="{ attrs }">
                 <v-btn color="red" text v-bind="attrs" @click="trainalert = false">
                   点击关闭
                 </v-btn>
               </template>
-            </v-snackbar> -->
+            </v-snackbar>  -->
             <v-spacer></v-spacer>
             <v-dialog v-model="newdialog" max-width="500px">
 
@@ -50,6 +50,9 @@
                   <v-spacer></v-spacer>
                   <v-btn color="blue darken-1" text @click="create">保存</v-btn>
                   <v-btn color="blue darken-1" text @click="closeDialog(1)">取消</v-btn>
+                  <!-- fixme error clicking cancel
+                    peError: Cannot read properties of null (reading 'name') -->
+
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -78,6 +81,7 @@
               mdi-menu-right
             </v-icon>
           </v-btn>
+          <!-- todo show img -->
         </template>
       </v-data-table>
     </v-flex>
@@ -145,6 +149,9 @@ export default {
       this.$store.dispatch('user/delete', item.name)
       this.dialogDelete = false
     },
+    //fixme no changes in the front after deletion
+    //promise) TypeError: Cannot read properties of undefined (reading 'length')
+
     create() {
       const self = this
       if (this.editedIndex == -1) {
@@ -160,6 +167,9 @@ export default {
             self.closeDialog(1)
           })
       }
+    },
+    train() {
+      this.$store.dispatch('face/train')
     },
 
     showDialog(options, item) {
