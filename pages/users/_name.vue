@@ -20,7 +20,7 @@
 
         <v-tab href="#tab-1">上传</v-tab>
 
-        <!-- <v-tab href="#tab-2">拍照</v-tab> -->
+        <v-tab href="#tab-2">拍照</v-tab>
 
         <v-tab-item value="tab-1">
           <v-card flat>
@@ -32,7 +32,7 @@
           </v-card>
         </v-tab-item>
 
-        <!-- <v-tab-item value="tab-2">
+        <v-tab-item value="tab-2">
           <v-card flat>
             <v-btn v-if="isCameraStarted" @click="takePhoto" color="secondary">
               拍照
@@ -46,7 +46,7 @@
               </v-flex>
             </v-layout>
           </v-card>
-        </v-tab-item> -->
+        </v-tab-item>
 
       </v-tabs>
     </v-flex>
@@ -79,6 +79,11 @@ export default {
       console.log(find.photos, 'find')
       console.log(find, 'fid')
       return find
+    },
+    photofile() {
+      return function (value) {
+
+      }
     },
     isCameraStarted() {
       return this.$store.getters['camera/isCameraStarted']
