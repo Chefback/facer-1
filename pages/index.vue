@@ -45,7 +45,7 @@
         </v-responsive>
         <v-card-actions>
           <v-spacer />
-          <v-btn color="primary" nuxt to="/users">注册</v-btn>
+          <v-btn color="primary" nuxt to="/users">添加</v-btn>
         </v-card-actions>
       </v-card>
     </v-flex>
