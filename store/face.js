@@ -59,10 +59,10 @@ export const actions = {
     if (!state.loading && !state.loaded) {
       commit('loading')
       return Promise.all([
-        faceapi.loadFaceRecognitionModel('/data/models'),
-        faceapi.loadFaceLandmarkModel('/data/models'),
-        faceapi.loadTinyFaceDetectorModel('/data/models'),
-        faceapi.loadFaceExpressionModel('/data/models')
+        faceapi.nets.faceRecognitionNet.loadFromUri('/data/models'),
+        faceapi.nets.faceLandmark68TinyNet.loadFromUri('/data/models'),
+        faceapi.nets.tinyFaceDetector.loadFromUri('/data/models'),
+        // faceapi.nets.tinyYolov2.loadFromUri('/data/models'),
       ])
         .then(() => {
           commit('load')
@@ -82,9 +82,10 @@ export const actions = {
     const { data } = await this.$axios.$post('/api/face/save', { faces })
     commit('setFaces', data)
   },
-  async train({ rootState }) {
+  async train({ rootState, dispatch }) {
     const self = this
     const faces = []
+    //fixme get img file from mongodb
     await Promise.all(rootState.user.userlist.map(async (user) => {
       const descriptors = []
       console.log(user)
