@@ -66,15 +66,15 @@ export const mutations = {
 export const actions = {
   async getAll({ commit }) {
     const data = await this.$axios.$get('/api/user/getAll')
-    const userlist = data.map((user) => {
-      user.photos.forEach((x) => {
-        console.log(x, 'x')
-        return `http://127.0.0.1:3001/${user.name}/${x._id}`
-      })
-      return user
-    })
+    // const userlist = data.map((user) => {
+    //   user.photos.forEach((x) => {
+    //     console.log(x, 'x')
+    //     return `http://127.0.0.1:3001/${user.name}/${x._id}`
+    //   })
+    //   return user
+    // })
     console.log('serverdata', data)
-    console.log('data', userlist)
+    // console.log('data', userlist)
     commit('setUsers', data)
   },
 
