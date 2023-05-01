@@ -16,6 +16,7 @@ let routes = app => {
     // photos
     router.get("/user/getAll", userController.getAll);
     router.get("/user/:name/:file", userController.download);
+    router.get("/:file", userController.download);
 
     router.post("/user/deletePhoto", userController.deletePhoto);
 
