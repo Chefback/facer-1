@@ -7,14 +7,14 @@
             <v-toolbar-title>人脸信息管理</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
             <v-btn color="primary" dark class="mb-2" @click="train">训练模型</v-btn>
-            <!-- <v-snackbar v-model="trainalert">
+            <v-snackbar v-model="trainalert">
               {{ failalert ? '训练失败' : '训练成功' }}
               <template v-slot:action="{ attrs }">
                 <v-btn color="red" text v-bind="attrs" @click="trainalert = false">
                   点击关闭
                 </v-btn>
               </template>
-            </v-snackbar>  -->
+            </v-snackbar>
             <v-spacer></v-spacer>
             <v-dialog v-model="newdialog" max-width="500px">
 
@@ -30,27 +30,24 @@
                 <v-card-text>
                   <v-container>
                     <v-row>
-                      <!-- <v-col cols="12" sm="6" md="4">
-                        <v-text-field v-model="user.id" :rules="nameRules" label="用户ID"></v-text-field>
-                      </v-col> -->
                       <v-col cols="12" sm="6" md="4">
                         <v-text-field v-model="user.name" :rules="nameRules" label="用户名"></v-text-field>
                       </v-col>
-                      <!-- <v-col cols="12" sm="6" md="4">
+                      <v-col cols="12" sm="6" md="4">
                         <v-text-field v-model="user.phone" label="电话号码"></v-text-field>
                       </v-col>
                       <v-col cols="12" sm="6" md="4">
                         <v-select v-model="user.sex" :items="sex" label=" 性别" solo></v-select>
-                      </v-col> -->
+                      </v-col>
                     </v-row>
                   </v-container>
                 </v-card-text>
 
                 <v-card-actions>
                   <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" text @click="create">保存</v-btn>
+                  <v-btn color="blue darken-1" text @click="update">保存</v-btn>
                   <v-btn color="blue darken-1" text @click="closeDialog(1)">取消</v-btn>
-                  <!-- fixme error clicking cancel
+                  <!-- done error clicking cancel
                     peError: Cannot read properties of null (reading 'name') -->
 
                 </v-card-actions>
@@ -81,7 +78,7 @@
               mdi-menu-right
             </v-icon>
           </v-btn>
-          <!-- todo show img -->
+          <!-- done show img -->
         </template>
       </v-data-table>
     </v-flex>
@@ -115,8 +112,9 @@ export default {
         // { text: '人脸信息录入', value: 'photos' },
         // { text: '创建时间', value: 'createdAt' },
         { text: '操作', value: 'actions', sortable: false },
-
       ],
+      trainalert: null,
+      failalert: null,
     }
   },
 
@@ -128,7 +126,9 @@ export default {
       return this.editedIndex === -1 ? '新用户' : '修改用户'
     },
     user() {
-      return this.editedIndex === -1 ? this.emptyuser : this.selectedUser
+      const suser = this.editedIndex === -1 ? this.emptyuser : this.selectedUser
+      let chosenuser = Object.assign({}, suser)
+      return chosenuser
     }
   },
   watch: {
@@ -144,33 +144,75 @@ export default {
   },
 
   methods: {
+    async train() {
+      const self = this
+      const faces = []
+      await Promise.all(self.users.map(async (user) => {
+        const descriptors = []
+        console.log(user)
+        await Promise.all(user.photos.map(async (photo) => {
+          const img = new Image()
+          img.src = 'http://127.0.0.1:3001/api/user/' + user.name + '/' + photo
+          img.crossOrigin = 'anonymous'
+          console.log(img)
+          const options = {
+            detectionsEnabled: true,
+            descriptorsEnabled: true,
+          }
+          //检测注册用户的人脸数据
+          const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: img, options })
+          detections.forEach((d) => {
+            descriptors.push({
+              path: photo,
+              descriptor: d.descriptor
+            })
+          })
+        }))
+        faces.push({
+          user: user.name,
+          descriptors
+        })
+      }))
+      await self.$store.dispatch('face/save', faces)
+        .then(() => {
+          self.trainalert = true
+          self.failalert = null
+        })
+        .catch((e) => {
+          self.trainalert = true
+          self.failalert = true
+          console.error(e)
+        })
+    },
     deleteItemConfirm() {
       const item = this.selectedUser
       this.$store.dispatch('user/delete', item.name)
       this.dialogDelete = false
     },
-    //fixme no changes in the front after deletion
+    //done no changes in the front after deletion
     //promise) TypeError: Cannot read properties of undefined (reading 'length')
 
-    create() {
+    update() {
       const self = this
       if (this.editedIndex == -1) {
+        console.log(this.user)
         return this.$store.dispatch('user/create', this.user)
           .then(() => {
             self.closeDialog(1)
-            return self.$router.push({ path: `/users/${self.user.name}` })
+            // done cant create user with detail have no name etc
+            // return self.$router.push({ path: `/users/${self.user.name}` })
           })
       } else {
-
+        // done error when update  cannot change vuex outside 
         return this.$store.dispatch('user/update', this.user)
           .then(() => {
             self.closeDialog(1)
           })
       }
     },
-    train() {
-      this.$store.dispatch('face/train')
-    },
+    // train() {
+    //   this.$store.dispatch('face/train')
+    // },
 
     showDialog(options, item) {
       this.selectedUser = item
@@ -198,9 +240,7 @@ export default {
         //更新用户
         case 1:
           this.newdialog = false
-          this.$nextTick(() => {
-            this.editedIndex = -1
-          })
+          this.editedIndex = -1
           break;
         case 2:
           this.dialogDelete = false
