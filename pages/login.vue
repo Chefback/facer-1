@@ -49,8 +49,8 @@ export default {
 
                 console.log(res.data.message)
 
-                this.snackbar = true
-                this.snackbarMessage = res.data.message
+                // this.snackbar = true
+                // this.snackbarMessage = res.data.message
             }).catch((error) => {
                 console.log(error)
                 this.snackbar = true
