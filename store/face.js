@@ -1,4 +1,5 @@
 import * as faceapi from '@vladmandic/face-api';
+// const faceapi = require('@vladmandic/face-api/dist/face-api.node-gpu.js');
 import metadata from "../data/metadata.json";
 import { CustomMobileNet } from '@teachablemachine/image';
 import * as tmImage from '@teachablemachine/image';
@@ -73,6 +74,7 @@ export const actions = {
     const data = await this.$axios.$get('/api/face/getAll')
     commit('setFaces', data)
   },
+
   async getModel({ commit, state }) {
     //从后端获取模型文件，并赋值给state
     // const data = await this.$axios.$get('/api/face/getModel')
@@ -81,46 +83,6 @@ export const actions = {
   async save({ commit }, faces) {
     const { data } = await this.$axios.$post('/api/face/save', { faces })
     commit('setFaces', data)
-  },
-  async train({ rootState, dispatch }) {
-    const self = this
-    const faces = []
-    //fixme get img file from mongodb
-    await Promise.all(rootState.user.userlist.map(async (user) => {
-      const descriptors = []
-      console.log(user)
-      await Promise.all(user.photos.map(async (photo) => {
-        const img = new Image()
-        img.src = photo.data
-        console.log(img)
-        const options = {
-          detectionsEnabled: true,
-          descriptorsEnabled: true,
-        }
-        //检测注册用户的人脸数据
-        const detections = await dispatch('getFaceDetections', { canvas: img, options })
-        detections.forEach((d) => {
-          descriptors.push({
-            path: photo,
-            descriptor: d.descriptor
-          })
-        })
-      }))
-      faces.push({
-        user: user.name,
-        descriptors
-      })
-    }))
-    await dispatch('save', faces)
-      .then(() => {
-        // self.trainalert = true
-        // self.failalert = null
-      })
-      .catch((e) => {
-        // self.trainalert = true
-        // self.failalert = true
-        console.error(e)
-      })
   },
   getFaceMatcher({ commit, state }) {
     //从服务器获取的提取的特征文件中提取注册人脸的描述器
@@ -157,9 +119,6 @@ export const actions = {
         inputSize: state.detections.inputSize
       })).withFaceLandmarks(true).withFaceDescriptors()
 
-    // detections = detections.    if (options && options.descriptorsEnabled) {
-    //   detections = detections.withFaceDescriptors()
-    // }
     detections = await detections
     return detections
   },
@@ -182,10 +141,6 @@ export const actions = {
     return null
   },
 
-  async classify({ commit, state }, { canvas }) {
-    const result = await state.maskClassfier.predict(canvas)
-    return result
-  },
 
   draw({ commit, state }, { canvasDiv, canvasCtx, detection, options }) {
 
