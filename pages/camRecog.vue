@@ -148,7 +148,7 @@ export default {
         //     "className": "Mask",
         //     "probability": 0.0063973600044846535
         // }
-        console.log(detections)
+        // console.log(detections)
         if (detections.length) {
           detections.forEach(async (detection) => {
             //添加人脸识别结果
@@ -171,7 +171,7 @@ export default {
               })
           })
 
-          console.log(detections, '检测结果')
+          // console.log(detections, '检测结果')
         }
         const t1 = performance.now()
         self.duration = (t1 - t0).toFixed(2)
