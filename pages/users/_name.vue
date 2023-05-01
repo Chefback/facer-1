@@ -20,7 +20,7 @@
 
         <v-tab href="#tab-1">上传</v-tab>
 
-        <v-tab href="#tab-2">拍照</v-tab>
+        <!-- <v-tab href="#tab-2">拍照</v-tab> -->
 
         <v-tab-item value="tab-1">
           <v-card flat>
@@ -32,7 +32,7 @@
           </v-card>
         </v-tab-item>
 
-        <v-tab-item value="tab-2">
+        <!-- <v-tab-item value="tab-2">
           <v-card flat>
             <v-btn v-if="isCameraStarted" @click="takePhoto" color="secondary">
               拍照
@@ -46,7 +46,7 @@
               </v-flex>
             </v-layout>
           </v-card>
-        </v-tab-item>
+        </v-tab-item> -->
 
       </v-tabs>
     </v-flex>
@@ -55,7 +55,9 @@
         <v-btn @click="showDialog(photo)" fab small color="primary" dark>
           <v-icon>close</v-icon>
         </v-btn>
-        <img :id="user.name + index" :src="'http://127.0.0.1:3001/api/user/' + user.name + '/' + photo">
+        <img :id="user.name + index" :src="'http://127.0.0.1:3001/api/user/' + user.name + '/' + photo" width="320"
+          height="247" :alt="photo">
+        <!-- fixme need to show img after upload and delete -->
       </v-card>
     </v-flex>
   </v-layout>
@@ -76,7 +78,7 @@ export default {
     user() {
       const userByName = this.$store.getters['user/userByName']
       const find = userByName(this.$route.params.name)
-      console.log(find.photos, 'find')
+      // console.log(find.photos, 'find')
       console.log(find, 'fid')
       return find
     },
