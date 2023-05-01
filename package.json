@@ -20,7 +20,8 @@
     "@nuxtjs/vuetify": "^1.9.0",
     "@teachablemachine/image": "^0.8.5",
     "@tensorflow/tfjs": "^4.1.0",
-    "@tensorflow/tfjs-node": "^4.1.0",
+    "@tensorflow/tfjs-node": "^4.4.0",
+    "@tensorflow/tfjs-node-gpu": "^4.1.0",
     "@vladmandic/face-api": "^1.7.6",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.19.0",
@@ -52,9 +53,11 @@
     "@nuxtjs/eslint-config": "^1.1.2",
     "@nuxtjs/eslint-module": "^1.0.0",
     "ava": "^2.3.0",
+    "aws-sdk": "^2.1368.0",
     "babel-eslint": "^10.0.3",
     "babel-plugin-istanbul": "^5.2.0",
     "browser-env": "^3.2.6",
+    "child_process": "^1.0.2",
     "eslint": "^6.5.1",
     "eslint-config-standard": "^14.1.0",
     "eslint-loader": "^3.0.2",
@@ -64,9 +67,13 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": ">=4.0.1",
     "eslint-plugin-vue": "^5.2.3",
+    "mock-aws-s3": "^4.0.2",
+    "net": "^1.0.2",
+    "nock": "^13.3.1",
     "nodemon": "^2.0.0",
     "standard": "^14.3.1",
     "stylus": "^0.54.7",
-    "stylus-loader": "^3.0.2"
+    "stylus-loader": "^3.0.2",
+    "tls": "0.0.1"
   }
 }
