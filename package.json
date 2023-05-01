@@ -20,7 +20,7 @@
     "@nuxtjs/vuetify": "^1.9.0",
     "@teachablemachine/image": "^0.8.5",
     "@tensorflow/tfjs": "^4.1.0",
-    "@tensorflow/tfjs-node": "^4.4.0",
+    "@tensorflow/tfjs-node": "^4.1.0",
     "@tensorflow/tfjs-node-gpu": "^4.1.0",
     "@vladmandic/face-api": "^1.7.6",
     "bcrypt": "^5.1.0",
