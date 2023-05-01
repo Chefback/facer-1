@@ -1,4 +1,3 @@
-
 export const state = () => ({
   adminlist: [],
   userlist: [],
@@ -15,25 +14,13 @@ export const mutations = {
   addUser(state, newuser) {
     state.userlist.push(newuser)
   },
+  updateUser(state, update) {
 
-  // setAdmins(state, users) {
-  //   state.adminlist = users ? Array.from(users) : []
-  // },
-  // addAdmin(state, user) {
-  //   state.adminlist.push(user)
-  //   console.log(state.adminlist)
-  // },
-  // removeAdmin(state, name) {
-  //   for (let i = 0; i < state.adminlist.length; i++) {
-  //     if (state.adminlist[i].name === name) {
-  //       state.adminlist.splice(i, 1)
-  //     }
-  //   }
-  // },
+  },
   removeUser(state, name) {
-    for (let i = 0; i < state.list.length; i++) {
-      if (state.list[i].name === name) {
-        state.list.splice(i, 1)
+    for (let i = 0; i < state.userlist.length; i++) {
+      if (state.userlist[i].name === name) {
+        state.userlist.splice(i, 1)
       }
     }
   },
@@ -79,18 +66,29 @@ export const actions = {
   },
 
   async create({ commit }, user) {
-    const newuser = await this.$axios.$post('/api/user/create', { user })
-    commit('addUser', newuser)
+    await this.$axios.$post('/api/user/create', { user }).then(async () => {
+
+      const data = await this.$axios.$get('/api/user/getAll')
+      commit('setUsers', data)
+    })
   },
 
   async update({ commit }, user) {
-    const newuser = await this.$axios.$post('/api/user/update', { user })
-    commit('updateUser', newuser)
+    await this.$axios.$post('/api/user/update', { user }).then(async () => {
+
+      const data = await this.$axios.$get('/api/user/getAll')
+      commit('setUsers', data)
+    })
+
   },
 
   async delete({ commit }, user) {
-    await this.$axios.$post('/api/user/delete', { user })
-    commit('removeUser', user)
+    await this.$axios.$post('/api/user/delete', { user }).then(async () => {
+
+      const data = await this.$axios.$get('/api/user/getAll')
+      commit('setUsers', data)
+    })
+
   },
 
   async upload({ commit }, photo) {
