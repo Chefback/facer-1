@@ -6,12 +6,15 @@
         <v-text-field v-model="form.password" :counter="20" :rules="passwordRules" :type="'password'" label="Password"
             required></v-text-field>
 
-        <v-btn :disabled="!form.valid" color="indigo lighten-1" class="mr-4" @click="validate">
-            {{ buttonTitle }}
-        </v-btn>
-        <v-btn color="indigo lighten-1" class="mr-4" @click="loginorregis">
-            {{ anobuttonTitle }}
-        </v-btn>
+        <div class="d-flex justify-space-between">
+
+            <v-btn :disabled="!form.valid" color="indigo lighten-1" class="mr-4" @click="validate">
+                {{ buttonTitle }}
+            </v-btn>
+            <v-btn color="indigo lighten-1" class="mr-4" @click="loginorregis">
+                {{ anobuttonTitle }}
+            </v-btn>
+        </div>
     </v-form>
 </template>
 

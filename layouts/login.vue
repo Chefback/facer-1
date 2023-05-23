@@ -1,21 +1,39 @@
 <template>
-    <!-- <v-main>
-        <v-container fluid>
-            <div class="back">
-            </div>
-
-        </v-container>
-    </v-main> -->
-    <div class="container">
-        <div class="logo">
-            <img alt="logo"
-                src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/dfdba5317c0c20ce20e64fac803d52bc.svg~tplv-49unhts6dw-image.image" />
-            <div class="logo-text">Arco Design Pro</div>
-        </div>
+    <v-app>
+        <v-main>
+            <v-container class="fill-height">
+                <v-layout align-center align-content-center>
+                    <v-flex>
+                        <v-container>
+                            <v-row class="text-center fill-height" justify="center">
+                                <v-col cols="8" align-self="center">
+                                    <v-card class="fill-height" tile>
+                                        <v-card-text>
+                                            <div class="logo">
+                                                <img alt="logo"
+                                                    src="//p3-armor.byteimg.com/tos-cn-i-49unhts6dw/dfdba5317c0c20ce20e64fac803d52bc.svg~tplv-49unhts6dw-image.image" />
+                                                <div class="logo-text">口罩人脸识别系统</div>
+                                            </div>
+                                            <nuxt />
+                                        </v-card-text>
+                                    </v-card>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                    </v-flex>
+                </v-layout>
+            </v-container>
+        </v-main>
+    </v-app>
+    <!-- <div class="d-flex justify-center align-center">
         <div class="content">
-            <nuxt />
+            <v-card class="login-card">
+                <v-card-text>
+                    <nuxt />
+                </v-card-text>
+            </v-card>
         </div>
-    </div>
+    </div> -->
 </template>
 <script>
 
@@ -47,13 +65,9 @@ export default {
     margin: 180px auto;
     border: 2px solid #8492A6;
 } */
-
 .container {
     display: flex;
-
 }
-
-
 
 .content {
     position: relative;
@@ -64,27 +78,21 @@ export default {
     padding-bottom: 40px;
 }
 
-.footer {
-    position: absolute;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-}
-
-.logo {
+.content {
     position: fixed;
-    top: 24px;
-    left: 22px;
-    z-index: 1;
-    display: inline-flex;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
     align-items: center;
-
+    justify-content: center;
+    background-color: #f5f5f5;
 }
 
-.logo-text {
-    margin-right: 4px;
-    margin-left: 4px;
-    color: var(--color-fill-1);
-    font-size: 20px;
+.login-card {
+    max-width: 400px;
+    width: 100%;
+    padding: 24px;
 }
 </style>
