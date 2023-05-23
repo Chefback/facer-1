@@ -152,7 +152,9 @@ export default {
         console.log(user)
         await Promise.all(user.photos.map(async (photo) => {
           const img = new Image()
-          img.src = 'http://127.0.0.1:3001/api/user/' + user.name + '/' + photo
+          const photopath = 'http://127.0.0.1:3001/api/user/' + user.name + '/' + photo
+
+          img.src = photopath
           img.crossOrigin = 'anonymous'
           console.log(img)
           const options = {
@@ -161,9 +163,10 @@ export default {
           }
           //检测注册用户的人脸数据
           const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: img, options })
+          console.log(detections)
           detections.forEach((d) => {
             descriptors.push({
-              path: photo,
+              path: photopath,
               descriptor: d.descriptor
             })
           })
