@@ -141,14 +141,6 @@ export default {
         }
         //从视频流中检测人脸
         const detections = await self.$store.dispatch('face/getFaceDetections', { canvas: canvasDiv, options });
-        // const maskDetections = await self.$store.dispatch('face/getMaskDetections', { canvas: canvasDiv, options })
-        // const maskDetections = await self.$store.dispatch('face/getMaskClassify', { canvas: canvasDiv });
-        // console.log(maskDetections, 'mask');
-        // {
-        //     "className": "Mask",
-        //     "probability": 0.0063973600044846535
-        // }
-        // console.log(detections)
         if (detections.length) {
           detections.forEach(async (detection) => {
             //添加人脸识别结果
