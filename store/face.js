@@ -63,6 +63,7 @@ export const actions = {
         faceapi.nets.faceRecognitionNet.loadFromUri('/data/models'),
         faceapi.nets.faceLandmark68TinyNet.loadFromUri('/data/models'),
         faceapi.nets.tinyFaceDetector.loadFromUri('/data/models'),
+        faceapi.nets.ssdMobilenetv1.loadFromUri('/data/models'),
         // faceapi.nets.tinyYolov2.loadFromUri('/data/models'),
       ])
         .then(() => {
@@ -114,10 +115,8 @@ export const actions = {
   async getFaceDetections({ commit, state }, { canvas, options }) {
     //从视频流中检测人脸，选择TinyYolov2作为检测算法
     let detections = faceapi
-      .detectAllFaces(canvas, new faceapi.TinyFaceDetectorOptions({
-        scoreThreshold: state.detections.scoreThreshold,
-        inputSize: state.detections.inputSize
-      })).withFaceLandmarks(true).withFaceDescriptors()
+      .detectAllFaces(canvas, new faceapi.SsdMobilenetv1Options({ minConfidence: 0.8 })
+      ).withFaceLandmarks(true).withFaceDescriptors()
 
     detections = await detections
     return detections
