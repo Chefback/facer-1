@@ -25,15 +25,6 @@
             </v-container>
         </v-main>
     </v-app>
-    <!-- <div class="d-flex justify-center align-center">
-        <div class="content">
-            <v-card class="login-card">
-                <v-card-text>
-                    <nuxt />
-                </v-card-text>
-            </v-card>
-        </div>
-    </div> -->
 </template>
 <script>
 

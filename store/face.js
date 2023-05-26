@@ -16,7 +16,7 @@ export const state = () => ({
   useTiny: false,
   detections: {
     scoreThreshold: 0.5,
-    inputSize: 160,
+    // inputSize: 160,
     boxColor: 'blue',
     textColor: 'red',
     lineWidth: 1,
