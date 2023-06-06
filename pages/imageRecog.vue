@@ -111,7 +111,7 @@ export default {
               }),
                 //添加口罩识别项
                 detection.maskdetect = await self.$store.dispatch('face/getMaskClassify', { canvas: canvasDiv });
-              // console.log(detection, '检测结果')
+
               //画出识别结果
               self.$store.dispatch('face/draw',
                 {
@@ -122,6 +122,8 @@ export default {
                 })
             })
           }
+
+          console.log(detections, '检测结果')
         }, 1000)
       } else {
         this.imgalert = true

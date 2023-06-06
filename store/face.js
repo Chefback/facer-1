@@ -1,5 +1,8 @@
 import * as faceapi from '@vladmandic/face-api';
+// import tf from '@tensorflow/tfjs-node-gpu'
+// import * as faceapi from '@vladmandic/face-api/dist/face-api.node-gpu.js';
 // const faceapi = require('@vladmandic/face-api/dist/face-api.node-gpu.js');
+// const tf = require('@tensorflow/tfjs-node-gpu')
 import metadata from "../data/metadata.json";
 import { CustomMobileNet } from '@teachablemachine/image';
 import * as tmImage from '@teachablemachine/image';
@@ -150,7 +153,7 @@ export const actions = {
 
     let maskon = ''
     if (detection.maskdetect) {
-      if (detection.maskdetect[0].probability > detection.maskdetect[1].probability) {
+      if (detection.maskdetect[0].probability > 0.7) {
         maskon = '已佩戴口罩'
       } else {
         maskon = '未佩戴口罩'

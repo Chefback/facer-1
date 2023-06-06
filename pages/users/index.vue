@@ -1,7 +1,9 @@
 <template>
   <v-layout row wrap>
     <v-flex>
-      <v-data-table :headers="headers" :items="users" sort-by="id" hide-default-footer class="elevation-1">
+      <v-data-table :headers="headers" :items="users" sort-by="id" class="elevation-1" :footer-props="{
+        disableItemsPerPage: true,
+      }">
         <template v-slot:top>
           <v-toolbar flat>
             <v-toolbar-title>人脸信息管理</v-toolbar-title>

@@ -125,6 +125,7 @@ const config = {
      ** You can extend webpack config here
      */
     extend(config, ctx) {
+
       if (!config.node) {
         config.node = {}
       }
