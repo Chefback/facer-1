@@ -18,7 +18,7 @@ export const state = () => ({
   maskClassfier: null,
   useTiny: false,
   detections: {
-    scoreThreshold: 0.7,
+    scoreThreshold: 0.8,
     inputSize: 320,
     boxColor: 'blue',
     textColor: 'red',
